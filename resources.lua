@@ -11,7 +11,7 @@ local resources = {}
 ]]
 
 -- Fonts that are created once and then accessed by resources.printWithFont
-internal.fonts = {smallFont = love.graphics.newFont(12), largeFont = love.graphics.newFont(18)}
+local fonts = {smallFont = love.graphics.newFont(12), largeFont = love.graphics.newFont(18)}
 
 -- Store images in images field
 local function loadImages()
@@ -53,7 +53,7 @@ end
 
 function resources.printWithFont(fontName, printSomething)
     local _font = love.graphics.getFont()
-    love.graphics.setFont(internal.fonts[fontName])
+    love.graphics.setFont(fonts[fontName])
     printSomething()
     love.graphics.setFont(_font)
 end
