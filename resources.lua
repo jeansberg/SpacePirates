@@ -4,6 +4,8 @@
     This module also contains functions for playing sounds and drawing graphics.
 ]]
 
+local resources = {}
+
 --[[
     Local fields and functions
 ]]
@@ -27,7 +29,6 @@ end
     Module interface.
 ]]
 
-local resources = {}
 resources.sounds = {}
 resources.images = {}
 resources.musicTracks = {}
