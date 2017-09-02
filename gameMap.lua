@@ -56,8 +56,8 @@ end
 local GameMap = {}
 GameMap.nodes = {}
 
-function GameMap:new(nodes)
-    local o = {nodes = nodes}
+function GameMap:new(nodes, enterCombat)
+    local o = {nodes = nodes, enterCombat = enterCombat}
     o.currentNode = o.nodes[1]
     setmetatable(o, self)
     self.__index = self
@@ -94,6 +94,10 @@ function GameMap:update(dt)
 
         if canTravel then
             self.currentNode = self.hoveredNode
+
+            if self.currentNode.type == "dangerZone" then
+                self.enterCombat()
+            end
         end
     end
 end
@@ -148,8 +152,8 @@ function gameMap.newMapNode(id, name, xPos, yPos, links)
     return MapNode:new(id, name, xPos, yPos, links)
 end
 
-function gameMap.newGameMap(nodes)
-    return GameMap:new(nodes)
+function gameMap.newGameMap(nodes, enterCombat)
+    return GameMap:new(nodes, enterCombat)
 end
 
 return gameMap

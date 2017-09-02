@@ -1,4 +1,5 @@
 local gameMap = require("gameMap")
+local combatScene = require("combatScene")
 local input = require "input"
 local resources = require("resources")
 local stateMachine = require("stateMachine")
@@ -90,6 +91,10 @@ local function randomizeNodes(nodes)
     addNamesToNormal(nodes)
 end
 
+local function enterCombat()
+    gameEngine.fsm:setState(gameEngine.combatState)
+end
+
 local function generateMap()
     local n1 = gameMap.newMapNode(1, "System 1", 296, 32, {2})
     local n2 = gameMap.newMapNode(2, "System 2", 216, 72, {1, 3})
@@ -165,7 +170,7 @@ local function generateMap()
 
     randomizeNodes(nodes)
 
-    return gameMap.newGameMap(nodes)
+    return gameMap.newGameMap(nodes, enterCombat)
 end
 
 local function drawMenu()
@@ -250,8 +255,6 @@ function gameEngine.menuState.draw()
 end
 
 gameEngine.mapState = stateMachine.newState()
-function gameEngine.mapState.enter()
-end
 
 function gameEngine.mapState.update(dt)
     gameEngine.map:update(dt)
@@ -265,10 +268,20 @@ function gameEngine.mapState.draw()
     gameEngine.map:draw()
 end
 
+gameEngine.combatState = stateMachine.newState()
+function gameEngine.combatState.enter()
+    gameEngine.combatScene = combatScene.newCombatScene()
+end
+
+function gameEngine.combatState.draw()
+    gameEngine.combatScene:draw()
+end
+
 --[[
     Module interface.
 ]]
 function gameEngine.init()
+    math.randomseed(os.time())
     gameEngine.map = generateMap()
     gameEngine.fsm = stateMachine.newStateMachine()
     gameEngine.fsm:setState(gameEngine.menuState)
