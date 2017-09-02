@@ -1,3 +1,6 @@
+local resources = require("resources")
+local input = require("input")
+
 --[[
     Game Map module.
     Exposes functions for creating map nodes and game maps. 
@@ -7,8 +10,21 @@ local gameMap = {}
 --[[
     Local fields and functions.
 ]]
-local nodeSize = 8
+local imgStarMap = resources.images.starMap
+local highlightNode = resources.images.highlightNode
+local nodeSize = 32
 local nodeOffset = nodeSize / 2
+
+local function mouseHover(x, y, node)
+    if
+        x > node.xPos - nodeOffset and x < node.xPos + nodeOffset and y > node.yPos - nodeOffset and
+            y < node.yPos + nodeOffset
+     then
+        return true
+    end
+
+    return false
+end
 
 --[[
     MapNode class.
@@ -19,8 +35,8 @@ local MapNode = {}
 MapNode.id = 0
 MapNode.links = {}
 
-function MapNode:new(id, xPos, yPos, links)
-    local o = {id = id, xPos = xPos, yPos = yPos, links = links}
+function MapNode:new(id, name, xPos, yPos, links)
+    local o = {id = id, name = name, xPos = xPos, yPos = yPos, links = links}
     setmetatable(o, self)
     self.__index = self
     return o
@@ -51,41 +67,45 @@ function GameMap:moveToNode(node)
     return false
 end
 
-function GameMap:draw()
-    -- Draw links
-    local linksDrawn = {}
-    for i = 1, table.getn(self.nodes) do -- loop all nodes
-        local originNode = self.nodes[i]
-        for j = 1, table.getn(originNode.links) do -- loop all linked nodes
-            local linkedNode = self.nodes[originNode.links[j]]
-            print("Linking " .. originNode.id .. " and " .. linkedNode.id)
-            if
-                linkedNode and not linksDrawn[{originNode, linkedNode}] and
-                    not linksDrawn[{linkedNode, originNode}]
-             then
-                love.graphics.line(
-                    originNode.xPos + nodeOffset,
-                    originNode.yPos + nodeOffset,
-                    linkedNode.xPos + nodeOffset,
-                    linkedNode.yPos + nodeOffset
-                )
-            end
+function GameMap:update(dt)
+    local x, y = input.getMouse()
+    self.hoveredNode = nil
+    for i = 1, table.getn(self.nodes) do
+        if mouseHover(x, y, self.nodes[i]) then
+            self.hoveredNode = self.nodes[i]
+            break
         end
     end
+end
 
-    -- Draw nodes on top of links
-    for i = 1, table.getn(self.nodes) do
-        local node = self.nodes[i]
-        love.graphics.circle("fill", node.xPos, node.yPos, nodeSize, nodeSize)
-        love.graphics.print(node.id, node.xPos, node.yPos)
+function GameMap:draw()
+    love.graphics.draw(imgStarMap, 0, 0)
+
+    local x, y = input.getMouse()
+    if self.hoveredNode then
+        love.graphics.draw(
+            highlightNode,
+            self.hoveredNode.xPos - nodeOffset,
+            self.hoveredNode.yPos - nodeOffset
+        )
+        resources.printWithFont(
+            "smallFont",
+            function()
+                love.graphics.print(
+                    self.hoveredNode.name,
+                    self.hoveredNode.xPos - nodeOffset,
+                    self.hoveredNode.yPos - nodeOffset
+                )
+            end
+        )
     end
 end
 
 --[[
     Module interface.
 ]]
-function gameMap.newMapNode(id, xPos, yPos, links)
-    return MapNode:new(id, xPos, yPos, links)
+function gameMap.newMapNode(id, name, xPos, yPos, links)
+    return MapNode:new(id, name, xPos, yPos, links)
 end
 
 function gameMap.newGameMap(nodes)

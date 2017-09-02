@@ -3,18 +3,20 @@
     All graphics and sound resources should be read from the disk here.
     This module also contains functions for playing sounds and drawing graphics.
 ]]
-
 local resources = {}
 
 --[[
     Local fields and functions
 ]]
-
 -- Fonts that are created once and then accessed by resources.printWithFont
-local fonts = {smallFont = love.graphics.newFont(12), largeFont = love.graphics.newFont(18)}
+local fonts = {
+    smallFont = love.graphics.newFont("resources/fonts/VCR_OSD_MONO_1.001.ttf", 20),
+    largeFont = love.graphics.newFont("resources/fonts/VCR_OSD_MONO_1.001.ttf", 30)
+}
 
 -- Store images in images field
 local function loadImages()
+    print("loading images\n")
 end
 
 -- Store sounds in sounds field
@@ -28,19 +30,19 @@ end
 --[[
     Module interface.
 ]]
-
 resources.sounds = {}
 resources.images = {}
 resources.musicTracks = {}
 
+resources.images.starMap = love.graphics.newImage("resources/images/starMap.png")
+resources.images.highlightNode = love.graphics.newImage("resources/images/highlightNode.png")
+
 -- Play a type of sound (do not refer to specific file in order to support random variations and stuff)
 function resources.playSound(soundType)
-
 end
 
 -- Play a music track (if one is playing, stop that one first)
 function resources.playMusicTrack(musicTrack)
-
 end
 
 -- Store the current colors, draw something with specified colors and then restore the old colors
