@@ -35,7 +35,12 @@ resources.images = {}
 resources.musicTracks = {}
 
 resources.images.starMap = love.graphics.newImage("resources/images/starMap.png")
-resources.images.highlightNode = love.graphics.newImage("resources/images/highlightNode.png")
+resources.images.nodeHighlight = love.graphics.newImage("resources/images/nodeHighlight.png")
+resources.images.blueNode = love.graphics.newImage("resources/images/blueNode.png")
+resources.images.greenNode = love.graphics.newImage("resources/images/greenNode.png")
+resources.images.redNode = love.graphics.newImage("resources/images/redNode.png")
+resources.images.yellowNode = love.graphics.newImage("resources/images/yellowNode.png")
+resources.images.mermaidShip = love.graphics.newImage("resources/images/mermaidShip.png")
 
 -- Play a type of sound (do not refer to specific file in order to support random variations and stuff)
 function resources.playSound(soundType)
