@@ -6,6 +6,9 @@ local input = require("input")
     Exposes functions for creating map nodes and game maps. 
 ]]
 local gameMap = {}
+function gameMap.init(enterCombat)
+    gameMap.enterCombat = enterCombat
+end
 
 --[[
     Local fields and functions.
@@ -18,7 +21,8 @@ local redNode = resources.images.redNode
 local greenNode = resources.images.greenNode
 local mermaidShip = resources.images.mermaidShip
 local nodeSize = 32
-local nodeOffset = nodeSize / 2
+local nodeRadius = nodeSize / 2
+local nodeClickRadius = nodeRadius + 8
 
 --[[
     MapNode class.
@@ -45,8 +49,8 @@ end
 local GameMap = {}
 GameMap.nodes = {}
 
-function GameMap:new(nodes, enterCombat)
-    local o = {nodes = nodes, enterCombat = enterCombat}
+function GameMap:new(nodes)
+    local o = {nodes = nodes}
     o.currentNode = o.nodes[1]
     setmetatable(o, self)
     self.__index = self
@@ -67,10 +71,10 @@ function GameMap:update(dt)
     for i = 1, table.getn(self.nodes) do
         local node = self.nodes[i]
         local rect = {
-            xPos = node.xPos - nodeOffset,
-            yPos = node.yPos - nodeOffset,
-            width = nodeSize,
-            height = nodeSize
+            xPos = node.xPos - nodeClickRadius,
+            yPos = node.yPos - nodeClickRadius,
+            width = nodeClickRadius*2,
+            height = nodeClickRadius*2
         }
         if input.mouseOver(rect) then
             self.hoveredNode = self.nodes[i]
@@ -91,7 +95,7 @@ function GameMap:update(dt)
             self.currentNode = self.hoveredNode
 
             if self.currentNode.type == "dangerZone" then
-                self.enterCombat()
+                gameMap.enterCombat()
             end
         end
     end
@@ -103,13 +107,13 @@ function GameMap:draw()
     for i = 1, table.getn(self.nodes) do
         local node = self.nodes[i]
         if node.type == "city" then
-            love.graphics.draw(greenNode, node.xPos - nodeOffset, node.yPos - nodeOffset)
+            love.graphics.draw(greenNode, node.xPos - nodeRadius, node.yPos - nodeRadius)
         elseif node.type == "dangerZone" then
-            love.graphics.draw(redNode, node.xPos - nodeOffset, node.yPos - nodeOffset)
+            love.graphics.draw(redNode, node.xPos - nodeRadius, node.yPos - nodeRadius)
         elseif node.type == "beacon" then
-            love.graphics.draw(blueNode, node.xPos - nodeOffset, node.yPos - nodeOffset)
+            love.graphics.draw(blueNode, node.xPos - nodeRadius, node.yPos - nodeRadius)
         else
-            love.graphics.draw(yellowNode, node.xPos - nodeOffset, node.yPos - nodeOffset)
+            love.graphics.draw(yellowNode, node.xPos - nodeRadius, node.yPos - nodeRadius)
         end
     end
 
@@ -117,8 +121,8 @@ function GameMap:draw()
     if self.hoveredNode then
         love.graphics.draw(
             nodeHighlight,
-            self.hoveredNode.xPos - nodeOffset - 2,
-            self.hoveredNode.yPos - nodeOffset - 2
+            self.hoveredNode.xPos - nodeRadius - 2,
+            self.hoveredNode.yPos - nodeRadius - 2
         )
         resources.printWithFont(
             "smallFont",
@@ -132,7 +136,7 @@ function GameMap:draw()
                 elseif node.type == "beacon" then
                     name = "Distress Beacon"
                 end
-                love.graphics.print(name, node.xPos - nodeOffset - 16, node.yPos - nodeOffset - 16)
+                love.graphics.print(name, node.xPos - nodeRadius - 16, node.yPos - nodeRadius - 16)
             end
         )
     end
@@ -147,8 +151,8 @@ function gameMap.newMapNode(id, name, xPos, yPos, links)
     return MapNode:new(id, name, xPos, yPos, links)
 end
 
-function gameMap.newGameMap(nodes, enterCombat)
-    return GameMap:new(nodes, enterCombat)
+function gameMap.newGameMap(nodes)
+    return GameMap:new(nodes)
 end
 
 return gameMap

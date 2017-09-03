@@ -2,12 +2,16 @@ local input = {}
 local lastKey = {}
 local lastButton = {}
 
-function input.getMouse()
-    return love.mouse.getX(), love.mouse.getY()
-end
-
 function love.mousepressed(x, y, button, istouch)
     lastButton = button
+end
+
+function love.keypressed(key)
+    lastKey = key
+end
+
+function input.getMouse()
+    return love.mouse.getX(), love.mouse.getY()
 end
 
 function input.mouseOver(rect)
@@ -20,10 +24,6 @@ function input.mouseOver(rect)
     end
 
     return false
-end
-
-function love.keypressed(key)
-    lastKey = key
 end
 
 function input.getLeftClick()

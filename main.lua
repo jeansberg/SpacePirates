@@ -1,6 +1,10 @@
 local resources = require("resources")
 local gameEngine = require("gameEngine")
 
+--[[
+    This file contains the main Love2D callback functions.
+]]
+
 function love.load()
     resources.load()
     gameEngine.init()
