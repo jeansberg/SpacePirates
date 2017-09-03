@@ -95,6 +95,10 @@ local function enterCombat()
     gameEngine.fsm:setState(gameEngine.combatState)
 end
 
+local function exitCombat()
+    gameEngine.fsm:setState(gameEngine.mapState)
+end
+
 local function generateMap()
     local n1 = gameMap.newMapNode(1, "System 1", 296, 32, {2})
     local n2 = gameMap.newMapNode(2, "System 2", 216, 72, {1, 3})
@@ -176,7 +180,8 @@ end
 local function drawMenu()
     for i = 1, table.getn(gameEngine.menuState.Options) do
         local drawFunction = function()
-            love.graphics.print(gameEngine.menuState.Options[i][1], 600, 300 + i * 40)
+            local option = gameEngine.menuState.Options[i]
+            love.graphics.print(option[1], option.rect.xPos, option.rect.yPos)
         end
 
         if i == gameEngine.menuState.selectedIndex then
@@ -221,18 +226,21 @@ gameEngine.menuState.Options = {
         "New Game",
         function()
             gameEngine.fsm:setState(gameEngine.mapState)
-        end
+        end,
+        rect = {xPos = 600, yPos = 300, width = 150, height = 40}
     },
     {
         "Options",
         function()
-        end
+        end,
+        rect = {xPos = 600, yPos = 340, width = 100, height = 40}
     },
     {
         "Quit",
         function()
             love.event.quit()
-        end
+        end,
+        rect = {xPos = 600, yPos = 380, width = 50, height = 40}
     }
 }
 function gameEngine.menuState.enter()
@@ -247,6 +255,20 @@ function gameEngine.menuState.update(dt)
         gameEngine.menuState.selectedIndex = MenuDown(gameEngine.menuState)
     elseif menuInput == "return" then
         MenuSelect(gameEngine.menuState)
+    end
+
+    local mousePos = input.getMouse()
+    if mousePos == gameEngine.menuState.lastMousePos then
+        return
+    end
+
+    for i = 1, table.getn(gameEngine.menuState.Options) do
+        local option = gameEngine.menuState.Options[i]
+        if input.mouseOver(option.rect) then
+            gameEngine.menuState.selectedIndex = i
+            gameEngine.menuState.lastMousePos = input.getMouse()
+            break
+        end
     end
 end
 
@@ -270,7 +292,11 @@ end
 
 gameEngine.combatState = stateMachine.newState()
 function gameEngine.combatState.enter()
-    gameEngine.combatScene = combatScene.newCombatScene()
+    gameEngine.combatScene = combatScene.newCombatScene(exitCombat)
+end
+
+function gameEngine.combatState.update()
+    gameEngine.combatScene:update(dt)
 end
 
 function gameEngine.combatState.draw()
