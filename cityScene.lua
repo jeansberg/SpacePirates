@@ -1,35 +1,34 @@
 local resources = require("resources")
 local input = require("input")
 local utility = require("utility")
-
-local combatBackground = resources.images.combatScene
+local combatBackground = resources.images.cityScene
 
 --[[
-    Combat scene module.
-    Code for handling combat encounters.
+    City scene module.
+    Code for handling city visits.
 ]]
-local combatScene = {}
-function combatScene.init(exitScene)
-    combatScene.exitScene = exitScene
+local cityScene = {}
+function cityScene.init(exitScene)
+    cityScene.exitScene = exitScene
 end
 
 --[[
-    Combat scene class.
+    City scene class.
 ]]
-local CombatScene = {}
-CombatScene.buttons = {
+local CityScene = {}
+CityScene.buttons = {
     {
         name = "backButton",
         active = false,
         text = "Back",
         rect = utility.rect(40, 700, 50, 40),
         activate = function()
-            combatScene.exitScene()
+            cityScene.exitScene()
         end
     }
 }
 
-function CombatScene:new()
+function CityScene:new()
     local o = {}
     setmetatable(o, self)
     self.__index = self
@@ -60,13 +59,13 @@ local function drawButtons(buttons)
     end
 end
 
-function CombatScene:draw()
-    love.graphics.draw(combatBackground, 0, 0)
+function CityScene:draw()
+    --love.graphics.draw(cityBackground, 0, 0)
 
     drawButtons(self.buttons)
 end
 
-function CombatScene:update(dt)
+function CityScene:update(dt)
     for i = 1, table.getn(self.buttons) do
         local button = self.buttons[i]
         if input.mouseOver(button.rect) then
@@ -80,8 +79,8 @@ function CombatScene:update(dt)
     end
 end
 
-function combatScene.newCombatScene()
-    return CombatScene:new()
+function cityScene.newCityScene()
+    return CityScene:new()
 end
 
-return combatScene
+return cityScene

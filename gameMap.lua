@@ -1,13 +1,18 @@
 local resources = require("resources")
 local input = require("input")
+local utility = require("utility")
+
+local warpDrive = resources.sounds.warpDrive
 
 --[[
     Game Map module.
     Exposes functions for creating map nodes and game maps. 
 ]]
 local gameMap = {}
-function gameMap.init(enterCombat)
+function gameMap.init(enterCombat, enterCity, enterMenu)
     gameMap.enterCombat = enterCombat
+    gameMap.enterCity = enterCity
+    gameMap.enterMenu = enterMenu
 end
 
 --[[
@@ -48,6 +53,17 @@ end
 ]]
 local GameMap = {}
 GameMap.nodes = {}
+GameMap.buttons = {
+    {
+        name = "menuButton",
+        active = false,
+        text = "Menu",
+        rect = utility.rect(40, 700, 50, 40),
+        activate = function()
+            gameMap.enterMenu()
+        end
+    }
+}
 
 function GameMap:new(nodes)
     local o = {nodes = nodes}
@@ -55,6 +71,30 @@ function GameMap:new(nodes)
     setmetatable(o, self)
     self.__index = self
     return o
+end
+
+local function drawButtons(buttons)
+    local button = {}
+    local printFunction = function()
+        love.graphics.print(button.text, button.rect.xPos, button.rect.yPos)
+    end
+
+    for i = 1, table.getn(buttons) do
+        button = buttons[i]
+        if button.active then
+            resources.drawWithColor(
+                255,
+                0,
+                0,
+                255,
+                function()
+                    resources.printWithFont("smallFont", printFunction)
+                end
+            )
+        else
+            resources.printWithFont("smallFont", printFunction)
+        end
+    end
 end
 
 function GameMap:moveToNode(node)
@@ -66,15 +106,35 @@ function GameMap:moveToNode(node)
     return false
 end
 
+local function enterScene(node)
+    if node.type == "dangerZone" then
+        gameMap.enterCombat()
+    elseif node.type == "city" then
+        gameMap.enterCity()
+    end
+end
+
 function GameMap:update(dt)
+    for i = 1, table.getn(self.buttons) do
+        local button = self.buttons[i]
+        if input.mouseOver(button.rect) then
+            button.active = true
+            if input.getLeftClick() then
+                button.activate()
+            end
+        else
+            button.active = false
+        end
+    end
+
     self.hoveredNode = nil
     for i = 1, table.getn(self.nodes) do
         local node = self.nodes[i]
         local rect = {
             xPos = node.xPos - nodeClickRadius,
             yPos = node.yPos - nodeClickRadius,
-            width = nodeClickRadius*2,
-            height = nodeClickRadius*2
+            width = nodeClickRadius * 2,
+            height = nodeClickRadius * 2
         }
         if input.mouseOver(rect) then
             self.hoveredNode = self.nodes[i]
@@ -92,17 +152,21 @@ function GameMap:update(dt)
         end
 
         if canTravel then
+            resources.playSound(warpDrive)
             self.currentNode = self.hoveredNode
+            enterScene(self.currentNode)
+            return
+        end
 
-            if self.currentNode.type == "dangerZone" then
-                gameMap.enterCombat()
-            end
+        if self.hoveredNode == self.currentNode then
+            enterScene(self.currentNode)
         end
     end
 end
 
 function GameMap:draw()
     love.graphics.draw(imgStarMap, 0, 0)
+    drawButtons(self.buttons)
 
     for i = 1, table.getn(self.nodes) do
         local node = self.nodes[i]
