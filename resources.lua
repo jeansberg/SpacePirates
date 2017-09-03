@@ -41,6 +41,7 @@ resources.images.greenNode = love.graphics.newImage("resources/images/greenNode.
 resources.images.redNode = love.graphics.newImage("resources/images/redNode.png")
 resources.images.yellowNode = love.graphics.newImage("resources/images/yellowNode.png")
 resources.images.mermaidShip = love.graphics.newImage("resources/images/mermaidShip.png")
+resources.images.combatScene = love.graphics.newImage("resources/images/combatScene.png")
 
 -- Play a type of sound (do not refer to specific file in order to support random variations and stuff)
 function resources.playSound(soundType)

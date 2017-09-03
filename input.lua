@@ -10,6 +10,18 @@ function love.mousepressed(x, y, button, istouch)
     lastButton = button
 end
 
+function input.mouseOver(rect)
+    local x, y = input.getMouse()
+    if
+        x > rect.xPos and x < rect.xPos + rect.width and y > rect.yPos and
+            y < rect.yPos + rect.height
+     then
+        return true
+    end
+
+    return false
+end
+
 function love.keypressed(key)
     lastKey = key
 end

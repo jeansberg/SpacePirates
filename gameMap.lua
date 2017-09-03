@@ -20,17 +20,6 @@ local mermaidShip = resources.images.mermaidShip
 local nodeSize = 32
 local nodeOffset = nodeSize / 2
 
-local function mouseOnNode(x, y, node)
-    if
-        x > node.xPos - nodeOffset and x < node.xPos + nodeOffset and y > node.yPos - nodeOffset and
-            y < node.yPos + nodeOffset
-     then
-        return true
-    end
-
-    return false
-end
-
 --[[
     MapNode class.
     A node on the map. Has an id and links to other nodes.
@@ -56,8 +45,8 @@ end
 local GameMap = {}
 GameMap.nodes = {}
 
-function GameMap:new(nodes)
-    local o = {nodes = nodes}
+function GameMap:new(nodes, enterCombat)
+    local o = {nodes = nodes, enterCombat = enterCombat}
     o.currentNode = o.nodes[1]
     setmetatable(o, self)
     self.__index = self
@@ -74,10 +63,16 @@ function GameMap:moveToNode(node)
 end
 
 function GameMap:update(dt)
-    local x, y = input.getMouse()
     self.hoveredNode = nil
     for i = 1, table.getn(self.nodes) do
-        if mouseOnNode(x, y, self.nodes[i]) then
+        local node = self.nodes[i]
+        local rect = {
+            xPos = node.xPos - nodeOffset,
+            yPos = node.yPos - nodeOffset,
+            width = nodeSize,
+            height = nodeSize
+        }
+        if input.mouseOver(rect) then
             self.hoveredNode = self.nodes[i]
             break
         end
@@ -94,6 +89,10 @@ function GameMap:update(dt)
 
         if canTravel then
             self.currentNode = self.hoveredNode
+
+            if self.currentNode.type == "dangerZone" then
+                self.enterCombat()
+            end
         end
     end
 end
@@ -148,8 +147,8 @@ function gameMap.newMapNode(id, name, xPos, yPos, links)
     return MapNode:new(id, name, xPos, yPos, links)
 end
 
-function gameMap.newGameMap(nodes)
-    return GameMap:new(nodes)
+function gameMap.newGameMap(nodes, enterCombat)
+    return GameMap:new(nodes, enterCombat)
 end
 
 return gameMap
