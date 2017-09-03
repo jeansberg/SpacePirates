@@ -1,6 +1,7 @@
 local resources = require("resources")
 local input = require("input")
 local utility = require("utility")
+
 local combatBackground = resources.images.combatScene
 
 --[[
@@ -8,8 +9,8 @@ local combatBackground = resources.images.combatScene
     Code for handling combat encounters.
 ]]
 local combatScene = {}
-function combatScene.init(exitCombat)
-    combatScene.exitCombat = exitCombat
+function combatScene.init(exitScene)
+    combatScene.exitScene = exitScene
 end
 
 --[[
@@ -23,7 +24,7 @@ CombatScene.buttons = {
         text = "Back",
         rect = utility.rect(40, 700, 50, 40),
         activate = function()
-            combatScene.exitCombat()
+            combatScene.exitScene()
         end
     }
 }

@@ -14,25 +14,12 @@ local fonts = {
     largeFont = love.graphics.newFont("resources/fonts/VCR_OSD_MONO_1.001.ttf", 30)
 }
 
--- Store images in images field
-local function loadImages()
-    print("loading images\n")
-end
-
--- Store sounds in sounds field
-local function loadSounds()
-end
-
--- Store music tracks in musicTracks field (open these as streams since they will be larger)
-local function loadMusicTracks()
-end
-
 --[[
     Module interface.
 ]]
-resources.sounds = {}
 resources.images = {}
-resources.musicTracks = {}
+resources.sounds = {}
+resources.music = {}
 
 resources.images.starMap = love.graphics.newImage("resources/images/starMap.png")
 resources.images.nodeHighlight = love.graphics.newImage("resources/images/nodeHighlight.png")
@@ -43,12 +30,55 @@ resources.images.yellowNode = love.graphics.newImage("resources/images/yellowNod
 resources.images.mermaidShip = love.graphics.newImage("resources/images/mermaidShip.png")
 resources.images.combatScene = love.graphics.newImage("resources/images/combatScene.png")
 
--- Play a type of sound (do not refer to specific file in order to support random variations and stuff)
-function resources.playSound(soundType)
+resources.sounds.lowHealth = love.audio.newSource("resources/sounds/Low Health Alarm.mp3", "static")
+resources.sounds.warpDrive = love.audio.newSource("resources/sounds/Warp Drive.mp3", "static")
+resources.sounds.shipDamage =
+    love.audio.newSource("resources/sounds/Damage to Ship take 2.mp3", "static")
+resources.sounds.laserShot = love.audio.newSource("resources/sounds/Laser Shot.mp3", "static")
+resources.sounds.purchase = love.audio.newSource("resources/sounds/Purchase Sound.mp3", "static")
+resources.sounds.shipDamage2 = love.audio.newSource("resources/sounds/Damage to Ship.mp3", "static")
+resources.sounds.menuSelect =
+    love.audio.newSource("resources/sounds/Menu Select Button.mp3", "static")
+resources.sounds.shipDestroyed =
+    love.audio.newSource("resources/sounds/Ship Destroyed.mp3", "static")
+resources.sounds.warpDrive2 =
+    love.audio.newSource("resources/sounds/Warp Drive take 2.mp3", "static")
+
+resources.music.cityTheme = love.audio.newSource("resources/music/City.mp3", "stream")
+resources.music.mainTheme = love.audio.newSource("resources/music/Main Theme.mp3", "stream")
+resources.music.titleTheme = love.audio.newSource("resources/music/Title Theme.mp3", "stream")
+resources.music.battleTheme = love.audio.newSource("resources/music/Battle Theme.mp3", "stream")
+resources.music.bossBattle = love.audio.newSource("resources/music/Boss Battle.mp3", "stream")
+
+-- Play a sound
+function resources.playSound(sound)
+    sound:rewind()
+    sound:play()
 end
 
--- Play a music track (if one is playing, stop that one first)
-function resources.playMusicTrack(musicTrack)
+-- Stop and rewind all music tracks
+function resources.stopMusic()
+    for i, v in pairs(resources.music) do
+        v:stop()
+        v:rewind()
+    end
+end
+
+-- Play a music track
+function resources.playMusic(track)
+    if track:isPlaying() then
+        return
+    end
+
+    resources.stopMusic()
+
+    track:play()
+end
+
+-- Restart a music track
+function resources.restartMusic(track)
+    resources.stopMusic()
+    track:play()
 end
 
 -- Store the current colors, draw something with specified colors and then restore the old colors
@@ -64,12 +94,6 @@ function resources.printWithFont(fontName, printSomething)
     love.graphics.setFont(fonts[fontName])
     printSomething()
     love.graphics.setFont(_font)
-end
-
-function resources.load()
-    loadImages()
-    loadSounds()
-    loadMusicTracks()
 end
 
 return resources

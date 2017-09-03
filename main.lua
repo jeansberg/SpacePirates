@@ -1,4 +1,3 @@
-local resources = require("resources")
 local gameEngine = require("gameEngine")
 
 --[[
@@ -6,7 +5,6 @@ local gameEngine = require("gameEngine")
 ]]
 
 function love.load()
-    resources.load()
     gameEngine.init()
 end
 
