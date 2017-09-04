@@ -132,7 +132,7 @@ local function drawMenu()
         local drawFunction = function()
             local option = gameEngine.menuState.Options[i]
             if option.visible then
-                love.graphics.print(option[1], option.rect.xPos, option.rect.yPos)
+                love.graphics.print(option.text, option.rect.xPos, option.rect.yPos)
             end
         end
 
@@ -177,7 +177,7 @@ local function MenuDown(menu)
 end
 
 local function MenuSelect(menu)
-    menu.Options[menu.selectedIndex][2]()
+    menu.Options[menu.selectedIndex].execute()
 end
 
 local function setOptionVisible(option, visible)
@@ -187,38 +187,58 @@ end
 gameEngine.menuState = stateMachine.newState()
 gameEngine.menuState.Options = {
     {
-        "Resume Game",
+        text = "Resume Game",
         visible = false,
-        function()
+        execute = function()
             gameEngine.fsm:setState(gameEngine.mapState)
         end,
-        rect = utility.rect(600, 260, 150, 40)
+        rect = utility.rect(
+            500,
+            260,
+            resources.getLineWidth("Resume Game", "largeFont"),
+            resources.getLineHeight("largeFont")
+        )
     },
     {
-        "New Game",
+        text = "New Game",
         visible = true,
-        function()
+        execute = function()
             gameEngine.running = true
             gameEngine.map = generateMap()
             resources.restartMusic(mainTheme)
             gameEngine.fsm:setState(gameEngine.mapState)
         end,
-        rect = utility.rect(600, 300, 150, 40)
+        rect = utility.rect(
+            500,
+            300,
+            resources.getLineWidth("New Game", "largeFont"),
+            resources.getLineHeight("largeFont")
+        )
     },
     {
-        "Options",
+        text = "Options",
         visible = true,
-        function()
+        execute = function()
         end,
-        rect = utility.rect(600, 340, 100, 40)
+        rect = utility.rect(
+            500,
+            340,
+            resources.getLineWidth("Options", "largeFont"),
+            resources.getLineHeight("largeFont")
+        )
     },
     {
-        "Quit",
+        text = "Quit",
         visible = true,
-        function()
+        execute = function()
             love.event.quit()
         end,
-        rect = utility.rect(600, 380, 50, 40)
+        rect = utility.rect(
+            500,
+            380,
+            resources.getLineWidth("Quit", "largeFont"),
+            resources.getLineHeight("largeFont")
+        )
     }
 }
 function gameEngine.menuState.enter()

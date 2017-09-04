@@ -10,8 +10,8 @@ local resources = {}
 ]]
 -- Fonts that are created once and then accessed by resources.printWithFont
 local fonts = {
-    smallFont = love.graphics.newFont("resources/fonts/VCR_OSD_MONO_1.001.ttf", 20),
-    largeFont = love.graphics.newFont("resources/fonts/VCR_OSD_MONO_1.001.ttf", 30)
+    smallFont = love.graphics.newFont("resources/fonts/PressStart2P-Regular.ttf", 20),
+    largeFont = love.graphics.newFont("resources/fonts/PressStart2P-Regular.ttf", 30)
 }
 
 --[[
@@ -87,6 +87,14 @@ function resources.drawWithColor(r, g, b, a, drawSomething)
     love.graphics.setColor(r, g, b, a)
     drawSomething()
     love.graphics.setColor(_r, _g, _b, _a)
+end
+
+function resources.getLineWidth(text, fontName)
+    return fonts[fontName]:getWidth(text)
+end
+
+function resources.getLineHeight(fontName)
+    return fonts[fontName]:getHeight()
 end
 
 function resources.printWithFont(fontName, printSomething)
