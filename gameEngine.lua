@@ -7,8 +7,6 @@ local utility = require("utility")
 local resources = require("resources")
 local stateMachine = require("stateMachine")
 
-local menuSelect = resources.sounds.menuSelect
-
 local titleTheme = resources.music.titleTheme
 local battleTheme = resources.music.battleTheme
 local mainTheme = resources.music.mainTheme
@@ -128,11 +126,11 @@ local function generateMap()
 end
 
 local function drawMenu()
-    for i = 1, table.getn(gameEngine.menuState.Options) do
+    for i = 1, table.getn(gameEngine.menuState.Buttons) do
         local drawFunction = function()
-            local option = gameEngine.menuState.Options[i]
+            local option = gameEngine.menuState.Buttons[i]
             if option.visible then
-                love.graphics.print(option.text, option.rect.xPos, option.rect.yPos)
+                love.graphics.print(option.text, option.xPos, option.yPos)
             end
         end
 
@@ -154,30 +152,32 @@ end
 
 local function MenuUp(menu)
     if menu.selectedIndex == 1 then
-        menu.selectedIndex = table.getn(menu.Options)
+        menu.selectedIndex = table.getn(menu.Buttons)
     else
         menu.selectedIndex = menu.selectedIndex - 1
     end
 
-    if not menu.Options[menu.selectedIndex].visible then
+    if not menu.Buttons[menu.selectedIndex].visible then
         MenuUp(menu)
     end
+    menu.Buttons[menu.selectedIndex]:focus()
 end
 
 local function MenuDown(menu)
-    if menu.selectedIndex == table.getn(menu.Options) then
+    if menu.selectedIndex == table.getn(menu.Buttons) then
         menu.selectedIndex = 1
     else
         menu.selectedIndex = menu.selectedIndex + 1
     end
 
-    if not menu.Options[menu.selectedIndex].visible then
+    if not menu.Buttons[menu.selectedIndex].visible then
         MenuDown(menu)
     end
+    menu.Buttons[menu.selectedIndex]:focus()
 end
 
 local function MenuSelect(menu)
-    menu.Options[menu.selectedIndex].execute()
+    menu.Buttons[menu.selectedIndex].execute()
 end
 
 local function setOptionVisible(option, visible)
@@ -185,62 +185,47 @@ local function setOptionVisible(option, visible)
 end
 
 gameEngine.menuState = stateMachine.newState()
-gameEngine.menuState.Options = {
-    {
-        text = "Resume Game",
-        visible = false,
-        execute = function()
+gameEngine.menuState.Buttons = {
+    utility.newButton(
+        500,
+        260,
+        "Resume Game",
+        false,
+        function()
             gameEngine.fsm:setState(gameEngine.mapState)
-        end,
-        rect = utility.rect(
-            500,
-            260,
-            resources.getLineWidth("Resume Game", "largeFont"),
-            resources.getLineHeight("largeFont")
-        )
-    },
-    {
-        text = "New Game",
-        visible = true,
-        execute = function()
+        end
+    ),
+    utility.newButton(
+        500,
+        300,
+        "New Game",
+        true,
+        function()
             gameEngine.running = true
             gameEngine.map = generateMap()
             resources.restartMusic(mainTheme)
             gameEngine.fsm:setState(gameEngine.mapState)
-        end,
-        rect = utility.rect(
-            500,
-            300,
-            resources.getLineWidth("New Game", "largeFont"),
-            resources.getLineHeight("largeFont")
-        )
-    },
-    {
-        text = "Options",
-        visible = true,
-        execute = function()
-        end,
-        rect = utility.rect(
-            500,
-            340,
-            resources.getLineWidth("Options", "largeFont"),
-            resources.getLineHeight("largeFont")
-        )
-    },
-    {
-        text = "Quit",
-        visible = true,
-        execute = function()
+        end
+    ),
+    utility.newButton(
+        500,
+        340,
+        "Options",
+        true,
+        function()
+        end
+    ),
+    utility.newButton(
+        500,
+        380,
+        "Quit",
+        true,
+        function()
             love.event.quit()
-        end,
-        rect = utility.rect(
-            500,
-            380,
-            resources.getLineWidth("Quit", "largeFont"),
-            resources.getLineHeight("largeFont")
-        )
-    }
+        end
+    )
 }
+
 function gameEngine.menuState.enter()
     if gameEngine.running then
         gameEngine.menuState.selectedIndex = 1
@@ -251,15 +236,13 @@ end
 
 function gameEngine.menuState.update(dt)
     if gameEngine.running then
-        setOptionVisible(gameEngine.menuState.Options[1], true)
+        setOptionVisible(gameEngine.menuState.Buttons[1], true)
     end
 
     local menuInput = input.getMenuInput()
     if menuInput == "up" then
-        resources.playSound(menuSelect)
         MenuUp(gameEngine.menuState)
     elseif menuInput == "down" then
-        resources.playSound(menuSelect)
         MenuDown(gameEngine.menuState)
     elseif menuInput == "return" then
         MenuSelect(gameEngine.menuState)
@@ -270,11 +253,15 @@ function gameEngine.menuState.update(dt)
     --     return
     -- end
 
-    for i = 1, table.getn(gameEngine.menuState.Options) do
-        local option = gameEngine.menuState.Options[i]
-        if input.mouseOver(option.rect) then
+    for i = 1, table.getn(gameEngine.menuState.Buttons) do
+        local option = gameEngine.menuState.Buttons[i]
+        if input.mouseOver(option:getRect()) then
             gameEngine.menuState.selectedIndex = i
-            gameEngine.menuState.lastMousePos = input.getMouse()
+            if not gameEngine.menuState.lastIndex == gameEngine.menuState.selectedIndex then
+                print("FOCUS")
+                gameEngine.menuState.Buttons[gameEngine.menuState.selectedIndex]:focus()
+            end
+            gameEngine.menuState.lastIndex = gameEngine.menuState.selectedIndex
             if input.getLeftClick() then
                 MenuSelect(gameEngine.menuState)
             end

@@ -18,15 +18,16 @@ end
 ]]
 local CombatScene = {}
 CombatScene.buttons = {
-    {
-        name = "backButton",
-        active = false,
-        text = "Back",
-        rect = utility.rect(40, 700, 50, 40),
-        activate = function()
+    utility.newButton(
+        40,
+        700,
+        "Back",
+        true,
+        function()
             combatScene.exitScene()
-        end
-    }
+        end,
+        "smallFont"
+    )
 }
 
 function CombatScene:new()
@@ -39,11 +40,12 @@ end
 local function drawButtons(buttons)
     local button = {}
     local printFunction = function()
-        love.graphics.print(button.text, button.rect.xPos, button.rect.yPos)
+        love.graphics.print(button.text, button.xPos, button.yPos)
     end
 
     for i = 1, table.getn(buttons) do
         button = buttons[i]
+        print("button " .. buttons[i].text)
         if button.active then
             resources.drawWithColor(
                 255,
@@ -69,10 +71,10 @@ end
 function CombatScene:update(dt)
     for i = 1, table.getn(self.buttons) do
         local button = self.buttons[i]
-        if input.mouseOver(button.rect) then
+        if input.mouseOver(button:getRect()) then
             button.active = true
             if input.getLeftClick() then
-                button.activate()
+                button.execute()
             end
         else
             button.active = false

@@ -43,12 +43,20 @@ resources.sounds.shipDestroyed =
     love.audio.newSource("resources/sounds/Ship Destroyed.mp3", "static")
 resources.sounds.warpDrive2 =
     love.audio.newSource("resources/sounds/Warp Drive take 2.mp3", "static")
+resources.sounds.purchase = love.audio.newSource("resources/sounds/Purchase Sound.mp3", "static")
+resources.sounds.menuClick = love.audio.newSource("resources/sounds/Menu Click.mp3", "static")
+resources.sounds.damage2 =
+    love.audio.newSource("resources/sounds/Damage to Ship take 2.mp3", "static")
+resources.sounds.damage = love.audio.newSource("resources/sounds/Damage to Ship.mp3", "static")
+resources.sounds.shot = love.audio.newSource("resources/sounds/Laser Shot.mp3", "static")
+resources.sounds.alarm = love.audio.newSource("resources/sounds/Low Health Alarm.mp3", "static")
 
 resources.music.cityTheme = love.audio.newSource("resources/music/City.mp3", "stream")
 resources.music.mainTheme = love.audio.newSource("resources/music/Main Theme.mp3", "stream")
 resources.music.titleTheme = love.audio.newSource("resources/music/Title Theme.mp3", "stream")
 resources.music.battleTheme = love.audio.newSource("resources/music/Battle Theme.mp3", "stream")
 resources.music.bossBattle = love.audio.newSource("resources/music/Boss Battle.mp3", "stream")
+resources.music.credits = love.audio.newSource("resources/music/Credits.mp3", "stream")
 
 -- Play a sound
 function resources.playSound(sound)
@@ -66,6 +74,8 @@ end
 
 -- Play a music track
 function resources.playMusic(track)
+    track:setLooping(true)
+
     if track:isPlaying() then
         return
     end

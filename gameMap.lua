@@ -54,15 +54,16 @@ end
 local GameMap = {}
 GameMap.nodes = {}
 GameMap.buttons = {
-    {
-        name = "menuButton",
-        active = false,
-        text = "Menu",
-        rect = utility.rect(40, 700, 50, 40),
-        activate = function()
+    utility.newButton(
+        40,
+        700,
+        "Menu",
+        true,
+        function()
             gameMap.enterMenu()
-        end
-    }
+        end,
+        "smallFont"
+    )
 }
 
 function GameMap:new(nodes)
@@ -71,30 +72,6 @@ function GameMap:new(nodes)
     setmetatable(o, self)
     self.__index = self
     return o
-end
-
-local function drawButtons(buttons)
-    local button = {}
-    local printFunction = function()
-        love.graphics.print(button.text, button.rect.xPos, button.rect.yPos)
-    end
-
-    for i = 1, table.getn(buttons) do
-        button = buttons[i]
-        if button.active then
-            resources.drawWithColor(
-                255,
-                0,
-                0,
-                255,
-                function()
-                    resources.printWithFont("smallFont", printFunction)
-                end
-            )
-        else
-            resources.printWithFont("smallFont", printFunction)
-        end
-    end
 end
 
 function GameMap:moveToNode(node)
@@ -115,17 +92,7 @@ local function enterScene(node)
 end
 
 function GameMap:update(dt)
-    for i = 1, table.getn(self.buttons) do
-        local button = self.buttons[i]
-        if input.mouseOver(button.rect) then
-            button.active = true
-            if input.getLeftClick() then
-                button.activate()
-            end
-        else
-            button.active = false
-        end
-    end
+    utility.updateButtons(self.buttons)
 
     self.hoveredNode = nil
     for i = 1, table.getn(self.nodes) do
@@ -166,7 +133,7 @@ end
 
 function GameMap:draw()
     love.graphics.draw(imgStarMap, 0, 0)
-    drawButtons(self.buttons)
+    utility.drawButtons(self.buttons)
 
     for i = 1, table.getn(self.nodes) do
         local node = self.nodes[i]
