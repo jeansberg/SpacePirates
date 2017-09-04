@@ -6,6 +6,7 @@ local input = require "input"
 local utility = require("utility")
 local resources = require("resources")
 local stateMachine = require("stateMachine")
+local player = require("player")
 
 local titleTheme = resources.music.titleTheme
 local battleTheme = resources.music.battleTheme
@@ -203,6 +204,7 @@ gameEngine.menuState.Buttons = {
         function()
             gameEngine.running = true
             gameEngine.map = generateMap()
+            gameEngine.player = player.newPlayer()
             resources.restartMusic(mainTheme)
             gameEngine.fsm:setState(gameEngine.mapState)
         end
@@ -294,7 +296,7 @@ end
 
 gameEngine.combatState = stateMachine.newState()
 function gameEngine.combatState.enter()
-    gameEngine.combatScene = combatScene.newCombatScene()
+    gameEngine.combatScene = combatScene.newCombatScene(gameEngine.player)
     resources.playMusic(battleTheme)
 end
 

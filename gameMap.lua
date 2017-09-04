@@ -83,12 +83,23 @@ function GameMap:moveToNode(node)
     return false
 end
 
+local function getEncounterType()
+    return "combat"
+end
+
 local function enterScene(node)
+    local type = getEncounterType()
+
+    if type == "combat" then
+        gameMap.enterCombat()
+    end
+    --[[
     if node.type == "dangerZone" then
         gameMap.enterCombat()
     elseif node.type == "city" then
         gameMap.enterCity()
     end
+    ]]
 end
 
 function GameMap:update(dt)
@@ -123,10 +134,6 @@ function GameMap:update(dt)
             self.currentNode = self.hoveredNode
             enterScene(self.currentNode)
             return
-        end
-
-        if self.hoveredNode == self.currentNode then
-            enterScene(self.currentNode)
         end
     end
 end

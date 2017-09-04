@@ -8,6 +8,8 @@ local combatBackground = resources.images.combatScene
     Combat scene module.
     Code for handling combat encounters.
 ]]
+local pirate = require("pirate")
+
 local combatScene = {}
 function combatScene.init(exitScene)
     combatScene.exitScene = exitScene
@@ -30,11 +32,39 @@ CombatScene.buttons = {
     )
 }
 
-function CombatScene:new()
+function CombatScene:new(player)
     local o = {}
+    o.player = player
+    o.enemy = pirate.newPirate()
     setmetatable(o, self)
     self.__index = self
     return o
+end
+
+local function asPercent(number)
+    return tostring((number * 100)) .. "%"
+end
+
+local function drawPlayerStats(player)
+    local text = ""
+    local offset = 0
+    local drawFunction = function()
+        love.graphics.print(text, 20, 480 + offset)
+    end
+    text = "Health " .. player.hp
+    resources.printWithFont("smallFont", drawFunction)
+    offset = offset + 20
+    text = "Armor  " .. player.armor
+    resources.printWithFont("smallFont", drawFunction)
+    offset = offset + 20
+    text = "Dodge  " .. asPercent(player.dodge)
+    resources.printWithFont("smallFont", drawFunction)
+    offset = offset + 20
+    text = "Crit   " .. asPercent(player.dodge)
+    resources.printWithFont("smallFont", drawFunction)
+    offset = offset + 20
+    text = "Ammo   " .. player.numAmmo
+    resources.printWithFont("smallFont", drawFunction)
 end
 
 local function drawButtons(buttons)
@@ -65,6 +95,7 @@ end
 function CombatScene:draw()
     love.graphics.draw(combatBackground, 0, 0)
 
+    drawPlayerStats(self.player)
     drawButtons(self.buttons)
 end
 
@@ -82,8 +113,8 @@ function CombatScene:update(dt)
     end
 end
 
-function combatScene.newCombatScene()
-    return CombatScene:new()
+function combatScene.newCombatScene(player)
+    return CombatScene:new(player)
 end
 
 return combatScene

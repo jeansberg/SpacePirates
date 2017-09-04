@@ -17,15 +17,16 @@ end
 ]]
 local CityScene = {}
 CityScene.buttons = {
-    {
-        name = "backButton",
-        active = false,
-        text = "Back",
-        rect = utility.rect(40, 700, 50, 40),
-        activate = function()
+    utility.newButton(
+        40,
+        700,
+        "Back",
+        true,
+        function()
             cityScene.exitScene()
-        end
-    }
+        end,
+        "smallFont"
+    )
 }
 
 function CityScene:new()

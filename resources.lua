@@ -99,19 +99,19 @@ function resources.drawWithColor(r, g, b, a, drawSomething)
     love.graphics.setColor(_r, _g, _b, _a)
 end
 
+function resources.printWithFont(fontName, printSomething)
+    local _font = love.graphics.getFont()
+    love.graphics.setFont(fonts[fontName])
+    printSomething()
+    love.graphics.setFont(_font)
+end
+
 function resources.getLineWidth(text, fontName)
     return fonts[fontName]:getWidth(text)
 end
 
 function resources.getLineHeight(fontName)
     return fonts[fontName]:getHeight()
-end
-
-function resources.printWithFont(fontName, printSomething)
-    local _font = love.graphics.getFont()
-    love.graphics.setFont(fonts[fontName])
-    printSomething()
-    love.graphics.setFont(_font)
 end
 
 return resources
