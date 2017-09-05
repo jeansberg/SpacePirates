@@ -8,6 +8,8 @@ local resources = require("resources")
 local stateMachine = require("stateMachine")
 local player = require("player")
 
+local starrySky = resources.images.starrySky
+
 local titleTheme = resources.music.titleTheme
 local battleTheme = resources.music.battleTheme
 local mainTheme = resources.music.mainTheme
@@ -126,6 +128,22 @@ local function generateMap()
     return gameMap.newGameMap(nodes)
 end
 
+local function scrollSky(dt)
+    local pos = gameEngine.menuState.skyPosition
+    if pos > -1280 then
+        pos = pos - dt * 20
+    else
+        pos = 0
+    end
+
+    return pos
+end
+
+local function drawSky()
+    love.graphics.draw(starrySky, gameEngine.menuState.skyPosition, 0)
+    love.graphics.draw(starrySky, gameEngine.menuState.skyPosition + 1280, 0)
+end
+
 local function drawMenu()
     for i = 1, table.getn(gameEngine.menuState.Buttons) do
         local drawFunction = function()
@@ -236,7 +254,9 @@ function gameEngine.menuState.enter()
     end
 end
 
-function gameEngine.menuState.update(dt)
+function gameEngine.menuState:update(dt)
+    gameEngine.menuState.skyPosition = scrollSky(dt)
+
     if gameEngine.running then
         setOptionVisible(gameEngine.menuState.Buttons[1], true)
     end
@@ -273,6 +293,8 @@ function gameEngine.menuState.update(dt)
 end
 
 function gameEngine.menuState.draw()
+    drawSky()
+
     drawMenu(gameEngine.menuState.options)
 end
 
@@ -333,6 +355,7 @@ function gameEngine.init()
 
     gameEngine.fsm = stateMachine.newStateMachine()
     gameEngine.fsm:setState(gameEngine.menuState)
+    gameEngine.menuState.skyPosition = 0
 
     resources.playMusic(titleTheme)
 end

@@ -29,6 +29,7 @@ resources.images.redNode = love.graphics.newImage("resources/images/redNode.png"
 resources.images.yellowNode = love.graphics.newImage("resources/images/yellowNode.png")
 resources.images.mermaidShip = love.graphics.newImage("resources/images/mermaidShip.png")
 resources.images.combatScene = love.graphics.newImage("resources/images/combatScene.png")
+resources.images.starrySky = love.graphics.newImage("resources/images/starrySky.png")
 
 resources.sounds.lowHealth = love.audio.newSource("resources/sounds/Low Health Alarm.mp3", "static")
 resources.sounds.warpDrive = love.audio.newSource("resources/sounds/Warp Drive.mp3", "static")
