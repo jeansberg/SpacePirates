@@ -12,11 +12,11 @@ local weapons = {standardCannon = true}
 local function getRandomGun()
     local roll = math.random(1, 3)
     if roll == 1 then
-        return "debuffCannon"
+        return "debuff"
     elseif roll == 2 then
-        return "critCannon"
+        return "crit"
     elseif roll == 2 then
-        return "pierceCannon"
+        return "pierce"
     end
 end
 
@@ -26,8 +26,7 @@ function MerchantShip:new()
     weapons[getRandomGun()] = true
 
     local o = ship.newShip(dodge, crit, armor, hp, numAmmo, weapons)
-    setmetatable(o, self)
-    self.__index = self
+    o.shipType = "merchantShip"
     return o
 end
 

@@ -148,8 +148,6 @@ function GameMap:draw()
             love.graphics.draw(greenNode, node.xPos - nodeRadius, node.yPos - nodeRadius)
         elseif node.type == "dangerZone" then
             love.graphics.draw(redNode, node.xPos - nodeRadius, node.yPos - nodeRadius)
-        elseif node.type == "beacon" then
-            love.graphics.draw(blueNode, node.xPos - nodeRadius, node.yPos - nodeRadius)
         else
             love.graphics.draw(yellowNode, node.xPos - nodeRadius, node.yPos - nodeRadius)
         end
@@ -174,7 +172,7 @@ function GameMap:draw()
                 elseif node.type == "beacon" then
                     name = "Distress Beacon"
                 end
-                love.graphics.print(name, node.xPos - nodeRadius - 16, node.yPos - nodeRadius - 16)
+                love.graphics.print(name, 750, 20)
             end
         )
     end

@@ -2,6 +2,15 @@ local ship = {}
 
 local Ship = {dodgeBonus = 0}
 
+local resources = require("resources")
+local laserShot = resources.sounds.laserShot
+local critCannon = resources.sounds.critCannon
+local debuffAttack = resources.sounds.debuffAttack
+local dodgeSound = resources.sounds.dodge
+local damageSound = resources.sounds.damage2
+local shipDestroyed = resources.sounds.shipDestroyed
+local lowHealth = resources.sounds.lowHealth
+
 local function raisedDodge()
     local roll = math.random(1, 10)
     if roll <= 5 then
@@ -11,18 +20,19 @@ local function raisedDodge()
     end
 end
 
-local function dodged(target)
-    local attackRoll = math.random(1, 10)
-    if attackRoll <= target.dodge * 10 then
-        return false
-    else
+local function dodged(dodge)
+    local attackRoll = math.random(1, 100)
+    if attackRoll <= dodge * 100 then
+        resources.playSound(dodgeSound)
         return true
+    else
+        return false
     end
 end
 
 local function getCrit(chance)
-    local critRoll = math.random(1, 10)
-    if critRoll <= chance * 10 then
+    local critRoll = math.random(1, 100)
+    if critRoll <= chance * 100 then
         return false
     else
         return true
@@ -49,14 +59,28 @@ function Ship:getDodge()
 end
 
 function Ship:takeDamage(damage, deducted)
-    self.hp = self.hp - (damage - (deducted or 0))
+    local finalDamage = (damage - (deducted or 0))
+    self.hp = self.hp - finalDamage
+
+    if (finalDamage > 0) then
+        resources.playSound(damageSound)
+    end
+
+    if self.hp < 1 then
+        resources.playSound(shipDestroyed)
+    end
 end
 
 function Ship:attack(target, weapon, useAmmo)
-    local miss = dodged(target.getDodge())
+    if useAmmo then
+        self.numAmmo = self.numAmmo - 1
+    end
+
+    local miss = dodged(target:getDodge())
     local multiplier = 1
 
     if weapon == "standard" then
+        resources.playSound(laserShot)
         if miss then
             return
         end
@@ -70,6 +94,7 @@ function Ship:attack(target, weapon, useAmmo)
             target:takeDamage(8 * multiplier, target.armor)
         end
     elseif weapon == "debuff" then
+        resources.playSound(debuffAttack)
         if (useAmmo or raisedDodge()) and self.dodgeBonus < 0.3 then
             self.dodgeBonus = self.dodgeBonus + 0.1
         end
@@ -87,6 +112,7 @@ function Ship:attack(target, weapon, useAmmo)
             target:takeDamage(4 * multiplier, target.armor)
         end
     elseif weapon == "pierce" then
+        resources.playSound(laserShot)
         if miss then
             return
         end
@@ -97,6 +123,7 @@ function Ship:attack(target, weapon, useAmmo)
             target:takeDamage(8)
         end
     elseif weapon == "crit" then
+        resources.playSound(critCannon)
         if miss then
             return
         end

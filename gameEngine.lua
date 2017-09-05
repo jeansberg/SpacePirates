@@ -14,6 +14,7 @@ local titleTheme = resources.music.titleTheme
 local battleTheme = resources.music.battleTheme
 local mainTheme = resources.music.mainTheme
 local cityTheme = resources.music.cityTheme
+local warp = resources.sounds.warpDrive
 
 --[[
     Game Engine module.
@@ -76,7 +77,7 @@ local function addNamesToNormal(nodes)
     local nameIndex = 1
     for i = 1, table.getn(nodes) do
         local node = nodes[i]
-        if node.type == "normal" then
+        if node.type == "normal" or node.type == "key" then
             node.name = names[nameIndex]
             nameIndex = nameIndex + 1
         end
@@ -87,15 +88,11 @@ end
 local function randomizeNodes(nodes)
     local isSpecial = {}
     -- Randomize cities
-    for _ = 1, 3 do
+    for _ = 1, 4 do
         addTypeToRandom(nodes, "city", isSpecial)
     end
-    -- Randomize beacons
-    for _ = 1, 4 do
-        addTypeToRandom(nodes, "beacon", isSpecial)
-    end
     -- Randomize danger zones
-    for _ = 1, 5 do
+    for _ = 1, 8 do
         addTypeToRandom(nodes, "dangerZone", isSpecial)
     end
 
@@ -112,7 +109,13 @@ local function enterCity()
     gameEngine.fsm:setState(gameEngine.cityState)
 end
 
-local function exitScene()
+local function exitScene(message)
+    if message == "fledCombat" then
+        print("Player fled combat.\n")
+        resources.playSound(warp)
+    elseif message == "diedFleeing" then
+        print("Player attempted to flee but took too much damage.\n")
+    end
     gameEngine.fsm:setState(gameEngine.mapState)
 end
 
@@ -279,7 +282,6 @@ function gameEngine.menuState:update(dt)
         local option = gameEngine.menuState.Buttons[i]
         if input.mouseOver(option:getRect()) then
             if option.visible then
-                print(option.text .. " is visible")
                 gameEngine.menuState.selectedIndex = i
                 if not gameEngine.menuState.lastIndex == gameEngine.menuState.selectedIndex then
                     gameEngine.menuState.Buttons[gameEngine.menuState.selectedIndex]:focus()
@@ -326,7 +328,7 @@ function gameEngine.combatState:enter()
     resources.playMusic(battleTheme)
 end
 
-function gameEngine.combatState:update()
+function gameEngine.combatState:update(dt)
     gameEngine.combatScene:update(dt)
 end
 

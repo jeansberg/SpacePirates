@@ -33,11 +33,11 @@ resources.images.starrySky = love.graphics.newImage("resources/images/starrySky.
 
 resources.sounds.lowHealth = love.audio.newSource("resources/sounds/Low Health Alarm.mp3", "static")
 resources.sounds.warpDrive = love.audio.newSource("resources/sounds/Warp Drive.mp3", "static")
-resources.sounds.shipDamage =
+resources.sounds.damage = love.audio.newSource("resources/sounds/Damage to Ship.mp3", "static")
+resources.sounds.damage2 =
     love.audio.newSource("resources/sounds/Damage to Ship take 2.mp3", "static")
 resources.sounds.laserShot = love.audio.newSource("resources/sounds/Laser Shot.mp3", "static")
 resources.sounds.purchase = love.audio.newSource("resources/sounds/Purchase Sound.mp3", "static")
-resources.sounds.shipDamage2 = love.audio.newSource("resources/sounds/Damage to Ship.mp3", "static")
 resources.sounds.menuSelect =
     love.audio.newSource("resources/sounds/Menu Select Button.mp3", "static")
 resources.sounds.shipDestroyed =
@@ -46,11 +46,11 @@ resources.sounds.warpDrive2 =
     love.audio.newSource("resources/sounds/Warp Drive take 2.mp3", "static")
 resources.sounds.purchase = love.audio.newSource("resources/sounds/Purchase Sound.mp3", "static")
 resources.sounds.menuClick = love.audio.newSource("resources/sounds/Menu Click.mp3", "static")
-resources.sounds.damage2 =
-    love.audio.newSource("resources/sounds/Damage to Ship take 2.mp3", "static")
-resources.sounds.damage = love.audio.newSource("resources/sounds/Damage to Ship.mp3", "static")
 resources.sounds.shot = love.audio.newSource("resources/sounds/Laser Shot.mp3", "static")
+resources.sounds.debuffAttack = love.audio.newSource("resources/sounds/Debuff Attack.mp3", "static")
+resources.sounds.critCannon = love.audio.newSource("resources/sounds/Crit Cannon.mp3", "static")
 resources.sounds.alarm = love.audio.newSource("resources/sounds/Low Health Alarm.mp3", "static")
+resources.sounds.dodge = love.audio.newSource("resources/sounds/Dodge.mp3", "static")
 
 resources.music.cityTheme = love.audio.newSource("resources/music/City.mp3", "stream")
 resources.music.mainTheme = love.audio.newSource("resources/music/Main Theme.mp3", "stream")
@@ -61,6 +61,7 @@ resources.music.credits = love.audio.newSource("resources/music/Credits.mp3", "s
 
 -- Play a sound
 function resources.playSound(sound)
+    sound:stop()
     sound:rewind()
     sound:play()
 end

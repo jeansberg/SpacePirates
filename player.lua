@@ -14,6 +14,7 @@ local Player = {}
 
 function Player:new()
     local o = ship.newShip(dodge, crit, armor, hp, numAmmo, weapons, money)
+    o.shipType = "player"
     return o
 end
 
