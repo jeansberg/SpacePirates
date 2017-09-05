@@ -14,8 +14,6 @@ local Player = {}
 
 function Player:new()
     local o = ship.newShip(dodge, crit, armor, hp, numAmmo, weapons, money)
-    setmetatable(o, self)
-    self.__index = self
     return o
 end
 

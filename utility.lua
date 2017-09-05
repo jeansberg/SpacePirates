@@ -61,7 +61,9 @@ end
 function utility.drawButtons(buttons)
     local button = {}
     local printFunction = function()
-        love.graphics.print(button.text, button.xPos, button.yPos)
+        if button.visible then
+            love.graphics.print(button.text, button.xPos, button.yPos)
+        end
     end
 
     for i = 1, table.getn(buttons) do

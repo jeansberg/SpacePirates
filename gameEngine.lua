@@ -246,7 +246,7 @@ gameEngine.menuState.Buttons = {
     )
 }
 
-function gameEngine.menuState.enter()
+function gameEngine.menuState:enter()
     if gameEngine.running then
         gameEngine.menuState.selectedIndex = 1
     else
@@ -278,21 +278,23 @@ function gameEngine.menuState:update(dt)
     for i = 1, table.getn(gameEngine.menuState.Buttons) do
         local option = gameEngine.menuState.Buttons[i]
         if input.mouseOver(option:getRect()) then
-            gameEngine.menuState.selectedIndex = i
-            if not gameEngine.menuState.lastIndex == gameEngine.menuState.selectedIndex then
-                print("FOCUS")
-                gameEngine.menuState.Buttons[gameEngine.menuState.selectedIndex]:focus()
+            if option.visible then
+                print(option.text .. " is visible")
+                gameEngine.menuState.selectedIndex = i
+                if not gameEngine.menuState.lastIndex == gameEngine.menuState.selectedIndex then
+                    gameEngine.menuState.Buttons[gameEngine.menuState.selectedIndex]:focus()
+                end
+                gameEngine.menuState.lastIndex = gameEngine.menuState.selectedIndex
+                if input.getLeftClick() then
+                    MenuSelect(gameEngine.menuState)
+                end
+                break
             end
-            gameEngine.menuState.lastIndex = gameEngine.menuState.selectedIndex
-            if input.getLeftClick() then
-                MenuSelect(gameEngine.menuState)
-            end
-            break
         end
     end
 end
 
-function gameEngine.menuState.draw()
+function gameEngine.menuState:draw()
     drawSky()
 
     drawMenu(gameEngine.menuState.options)
@@ -300,11 +302,13 @@ end
 
 gameEngine.mapState = stateMachine.newState()
 
-function gameEngine.mapState.enter()
+function gameEngine.mapState:enter()
+    --print("Map is " .. gameEngine.map)
+    print("Enter map state\n")
     resources.playMusic(mainTheme)
 end
 
-function gameEngine.mapState.update(dt)
+function gameEngine.mapState:update(dt)
     gameEngine.map:update(dt)
 
     if input.getEsc() then
@@ -312,21 +316,21 @@ function gameEngine.mapState.update(dt)
     end
 end
 
-function gameEngine.mapState.draw()
+function gameEngine.mapState:draw()
     gameEngine.map:draw()
 end
 
 gameEngine.combatState = stateMachine.newState()
-function gameEngine.combatState.enter()
+function gameEngine.combatState:enter()
     gameEngine.combatScene = combatScene.newCombatScene(gameEngine.player)
     resources.playMusic(battleTheme)
 end
 
-function gameEngine.combatState.update()
+function gameEngine.combatState:update()
     gameEngine.combatScene:update(dt)
 end
 
-function gameEngine.combatState.draw()
+function gameEngine.combatState:draw()
     gameEngine.combatScene:draw()
 end
 
@@ -336,11 +340,11 @@ function gameEngine.cityState.enter()
     resources.playMusic(cityTheme)
 end
 
-function gameEngine.cityState.update()
+function gameEngine.cityState:update()
     gameEngine.cityScene:update(dt)
 end
 
-function gameEngine.cityState.draw()
+function gameEngine.cityState:draw()
     gameEngine.cityScene:draw()
 end
 

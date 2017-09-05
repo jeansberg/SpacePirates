@@ -49,7 +49,7 @@ function Ship:getDodge()
 end
 
 function Ship:takeDamage(damage, deducted)
-    self.hp = -self.hp - (damage - deducted or 0)
+    self.hp = self.hp - (damage - (deducted or 0))
 end
 
 function Ship:attack(target, weapon, useAmmo)

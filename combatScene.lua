@@ -1,6 +1,7 @@
 local resources = require("resources")
 local input = require("input")
 local utility = require("utility")
+local stateMachine = require("stateMachine")
 
 local combatBackground = resources.images.combatScene
 
@@ -11,15 +12,8 @@ local combatBackground = resources.images.combatScene
 local pirate = require("pirate")
 
 local combatScene = {}
-function combatScene.init(exitScene)
-    combatScene.exitScene = exitScene
-end
 
---[[
-    Combat scene class.
-]]
-local CombatScene = {}
-CombatScene.buttons = {
+combatScene.buttons = {
     utility.newButton(
         40,
         700,
@@ -29,12 +23,110 @@ CombatScene.buttons = {
             combatScene.exitScene()
         end,
         "smallFont"
+    ),
+    utility.newButton(
+        450,
+        500,
+        "Fight",
+        false,
+        function()
+            combatScene.fsm:setState(combatScene.playerTurn)
+        end,
+        "smallFont"
+    ),
+    utility.newButton(
+        650,
+        500,
+        "Flee",
+        false,
+        function()
+            combatScene.player:takeDamage(10)
+            combatScene.exitScene()
+        end,
+        "smallFont"
+    ),
+    utility.newButton(
+        450,
+        500,
+        "Standard",
+        false,
+        function()
+            combatScene.exitScene()
+        end,
+        "smallFont"
+    ),
+    utility.newButton(
+        650,
+        500,
+        "Blinding",
+        false,
+        function()
+            combatScene.exitScene()
+        end,
+        "smallFont"
+    ),
+    utility.newButton(
+        450,
+        600,
+        "Critical",
+        false,
+        function()
+            combatScene.exitScene()
+        end,
+        "smallFont"
+    ),
+    utility.newButton(
+        650,
+        600,
+        "Armor Piercing",
+        false,
+        function()
+            combatScene.exitScene()
+        end,
+        "smallFont"
     )
 }
 
+combatScene.fsm = stateMachine.newStateMachine()
+
+combatScene.newTurnState = stateMachine.newState()
+function combatScene.newTurnState:enter()
+    combatScene.buttons[2].visible = true
+    combatScene.buttons[3].visible = true
+end
+
+function combatScene.newTurnState:exit()
+    combatScene.buttons[2].visible = false
+    combatScene.buttons[3].visible = false
+end
+
+combatScene.playerTurn = stateMachine.newState()
+function combatScene.playerTurn:enter()
+    combatScene.buttons[4].visible = true
+    combatScene.buttons[5].visible = true
+    combatScene.buttons[6].visible = true
+    combatScene.buttons[7].visible = true
+end
+
+function combatScene.playerTurn:exit()
+    combatScene.buttons[4].visible = false
+    combatScene.buttons[5].visible = false
+    combatScene.buttons[6].visible = false
+    combatScene.buttons[7].visible = false
+end
+
+function combatScene.init(exitScene)
+    combatScene.exitScene = exitScene
+end
+
+--[[
+    Combat scene class.
+]]
+local CombatScene = {buttons = combatScene.buttons}
+
 function CombatScene:new(player)
     local o = {}
-    o.player = player
+    combatScene.player = player
     o.enemy = pirate.newPirate()
     setmetatable(o, self)
     self.__index = self
@@ -67,53 +159,31 @@ local function drawPlayerStats(player)
     resources.printWithFont("smallFont", drawFunction)
 end
 
-local function drawButtons(buttons)
-    local button = {}
-    local printFunction = function()
-        love.graphics.print(button.text, button.xPos, button.yPos)
-    end
-
-    for i = 1, table.getn(buttons) do
-        button = buttons[i]
-        print("button " .. buttons[i].text)
-        if button.active then
-            resources.drawWithColor(
-                255,
-                0,
-                0,
-                255,
-                function()
-                    resources.printWithFont("smallFont", printFunction)
-                end
-            )
-        else
-            resources.printWithFont("smallFont", printFunction)
-        end
-    end
-end
-
 function CombatScene:draw()
     love.graphics.draw(combatBackground, 0, 0)
 
-    drawPlayerStats(self.player)
-    drawButtons(self.buttons)
+    drawPlayerStats(combatScene.player)
+    utility.drawButtons(self.buttons)
 end
 
 function CombatScene:update(dt)
     for i = 1, table.getn(self.buttons) do
         local button = self.buttons[i]
-        if input.mouseOver(button:getRect()) then
-            button.active = true
-            if input.getLeftClick() then
-                button.execute()
+        if button.visible then
+            if input.mouseOver(button:getRect()) then
+                button.active = true
+                if input.getLeftClick() then
+                    button.execute()
+                end
+            else
+                button.active = false
             end
-        else
-            button.active = false
         end
     end
 end
 
 function combatScene.newCombatScene(player)
+    combatScene.fsm:setState(combatScene.newTurnState)
     return CombatScene:new(player)
 end
 
