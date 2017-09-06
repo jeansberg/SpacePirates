@@ -213,6 +213,7 @@ gameEngine.menuState.Buttons = {
         260,
         "Resume Game",
         false,
+        true,
         function()
             gameEngine.fsm:setState(gameEngine.mapState)
         end
@@ -221,6 +222,7 @@ gameEngine.menuState.Buttons = {
         500,
         300,
         "New Game",
+        true,
         true,
         function()
             gameEngine.running = true
@@ -235,6 +237,7 @@ gameEngine.menuState.Buttons = {
         340,
         "Options",
         true,
+        true,
         function()
         end
     ),
@@ -242,6 +245,7 @@ gameEngine.menuState.Buttons = {
         500,
         380,
         "Quit",
+        true,
         true,
         function()
             love.event.quit()

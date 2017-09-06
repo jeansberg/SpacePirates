@@ -22,6 +22,7 @@ combatScene.buttons = {
         700,
         "Exit",
         false,
+        true,
         function()
             combatScene.exitScene()
         end,
@@ -32,6 +33,7 @@ combatScene.buttons = {
         500,
         "Fight",
         false,
+        true,
         function()
             combatScene.fsm:setState(combatScene.playerTurn)
         end,
@@ -42,6 +44,7 @@ combatScene.buttons = {
         500,
         "Flee",
         false,
+        true,
         function()
             combatScene.player:takeDamage(10)
             if combatScene.player.hp < 1 then
@@ -57,6 +60,7 @@ combatScene.buttons = {
         500,
         "Standard",
         false,
+        true,
         function()
             combatScene.player:attack(combatScene.enemy, "standard", combatScene.usingAmmo)
             combatScene.timeOutState.nextState = combatScene.enemyTurn
@@ -68,6 +72,7 @@ combatScene.buttons = {
         650,
         500,
         "Blinding",
+        false,
         false,
         function()
             combatScene.player:attack(combatScene.enemy, "debuff", combatScene.usingAmmo)
@@ -81,6 +86,7 @@ combatScene.buttons = {
         600,
         "Critical",
         false,
+        false,
         function()
             combatScene.player:attack(combatScene.enemy, "crit", combatScene.usingAmmo)
             combatScene.timeOutState.nextState = combatScene.enemyTurn
@@ -92,6 +98,7 @@ combatScene.buttons = {
         650,
         600,
         "Armor Piercing",
+        false,
         false,
         function()
             combatScene.player:attack(combatScene.enemy, "pierce", combatScene.usingAmmo)
@@ -230,6 +237,12 @@ function combatScene.init(exitScene)
     combatScene.exitScene = exitScene
 end
 
+local function enableWeapons(player)
+    combatScene.buttons[5].enabled = player.weapons["debuff"]
+    combatScene.buttons[6].enabled = player.weapons["crit"]
+    combatScene.buttons[7].enabled = player.weapons["pierce"]
+end
+
 --[[
     Combat scene class.
 ]]
@@ -239,6 +252,7 @@ function CombatScene:new(player)
     local o = {}
     combatScene.player = player
     combatScene.enemy = pirate.newPirate()
+    enableWeapons(player)
     setmetatable(o, self)
     self.__index = self
     return o
@@ -263,7 +277,7 @@ local function drawPlayerStats(player)
     text = "Dodge  " .. asPercent(player.dodge)
     resources.printWithFont("smallFont", drawFunction)
     offset = offset + 20
-    text = "Crit   " .. asPercent(player.dodge)
+    text = "Crit   " .. asPercent(player.crit)
     resources.printWithFont("smallFont", drawFunction)
     offset = offset + 20
     text = "Ammo   " .. player.numAmmo
@@ -286,7 +300,7 @@ function CombatScene:update(dt)
 
     for i = 1, table.getn(self.buttons) do
         local button = self.buttons[i]
-        if button.visible then
+        if button.visible and button.enabled then
             if input.mouseOver(button:getRect()) then
                 button.active = true
                 if input.getLeftClick() then

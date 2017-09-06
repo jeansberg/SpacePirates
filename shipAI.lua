@@ -1,6 +1,6 @@
 local shipAI = {}
 
-local function selectGun(ship, specialChance)
+local function selectGun(ship)
     local specialWeapons = {}
     if ship.weapons["debuff"] then
         table.insert(specialWeapons, "debuff")
@@ -35,7 +35,7 @@ local function useSpecialAmmo(chance)
 end
 
 function shipAI.takeAction(ship, target)
-    local gun = selectGun(ship, 50)
+    local gun = selectGun(ship)
     local useAmmo = false
     if ship.numAmmo > 0 then
         if ship.shipType == "pirate" then

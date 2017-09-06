@@ -59,6 +59,7 @@ GameMap.buttons = {
         700,
         "Menu",
         true,
+        true,
         function()
             gameMap.enterMenu()
         end,

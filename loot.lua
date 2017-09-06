@@ -3,19 +3,22 @@ local loot = {}
 local function randomRoll(chance)
     local roll = math.random(1, 100)
     if roll <= chance * 100 then
-        return false
-    else
         return true
     end
+    return false
 end
 
 local function getMoney(lootReturn, player, min, max)
-    local lootMoney =  math.random(min, max)
+    local lootRoll = math.random(0, 1)
+    local lootMoney = min
+    if lootRoll == 1 then
+        lootMoney = max
+    end
     player.money = player.money + lootMoney
     table.insert(lootReturn, {amount = lootMoney, text = "money"})
 end
 
-local function getUpgrade(lootReturn,player, chance)
+local function getUpgrade(lootReturn, player, chance)
     if randomRoll(chance) then
         local roll = math.random(1, 3)
         if roll == 1 then
@@ -31,7 +34,7 @@ local function getUpgrade(lootReturn,player, chance)
     end
 end
 
-local function getAmmo(lootReturn,player, min, max, chance)
+local function getAmmo(lootReturn, player, min, max, chance)
     if randomRoll(chance) then
         local amount = 0
         if math.random(0, 1) == 1 then
@@ -44,29 +47,33 @@ local function getAmmo(lootReturn,player, min, max, chance)
     end
 end
 
-local function getWeapon(lootReturn,player, chance)
+local function getWeapon(lootReturn, player, chance)
     if randomRoll(chance) then
         local specialWeapons = {}
-        if not player.weapons["debuffCannon"] then
-            table.insert(specialWeapons, "debuffCannon")
+        if not player.weapons["debuff"] then
+            table.insert(specialWeapons, "debuff")
         end
-        if not player.weapons["critCannon"] then
-            table.insert(specialWeapons, "critCannon")
+        if not player.weapons["crit"] then
+            table.insert(specialWeapons, "crit")
         end
-        if not player.weapons["pierceCannon"] then
-            table.insert(specialWeapons, "pierceCannon")
+        if not player.weapons["pierce"] then
+            table.insert(specialWeapons, "pierce")
+        end
+
+        if table.getn(specialWeapons) == 0 then
+            return
         end
 
         local roll = math.random(1, table.getn(specialWeapons))
         local receivedWeapon = specialWeapons[roll]
         player.weapons[receivedWeapon] = true
 
-        if receivedWeapon == "debuffCannon" then
+        if receivedWeapon == "debuff" then
             table.insert(lootReturn, {amount = 1, text = "Blinding Cannon"})
-        elseif receivedWeapon == "critCannon" then
-             table.insert(lootReturn, {amount = 1, text = "Crit Cannon"})
-        elseif receivedWeapon == "pierceCannon" then
-             table.insert(lootReturn, {amount = 1, text = "Pierce Cannon"})
+        elseif receivedWeapon == "crit" then
+            table.insert(lootReturn, {amount = 1, text = "Crit Cannon"})
+        elseif receivedWeapon == "pierce" then
+            table.insert(lootReturn, {amount = 1, text = "Pierce Cannon"})
         end
     end
 end
