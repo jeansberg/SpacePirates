@@ -92,6 +92,21 @@ function loot.getLoot(player, enemy, type)
             getAmmo(lootReturn, player, 1, 2, 1)
             getWeapon(lootReturn, player, 0.05)
         end
+    elseif enemy.shipType == "highLevelPirate" then
+        getMoney(lootReturn, player, 30, 40)
+        getUpgrade(lootReturn, player, 0.2)
+        getAmmo(lootReturn, player, 2, 3, 1)
+        getWeapon(lootReturn, player, 0.1)
+    elseif enemy.shipType == "merchantShip" then
+        getMoney(lootReturn, player, 50, 60)
+        getUpgrade(lootReturn, player, 0.5)
+        getAmmo(lootReturn, player, 3, 4, 1)
+        getWeapon(lootReturn, player, 0.3)
+    elseif enemy.shipType == "keyStarPirate" then
+        getMoney(lootReturn, player, 80, 80)
+        getUpgrade(lootReturn, player, 1)
+        getAmmo(lootReturn, player, 5, 5, 1)
+        getWeapon(lootReturn, player, 1)
     end
 
     return lootReturn
