@@ -75,7 +75,7 @@ local function getRandomGun(weapons)
 
     local roll = math.random(1, table.getn(specialWeapons))
     local receivedWeapon = specialWeapons[roll]
-    table.insert(weapons, {receivedWeapon = true})
+    table.insert(weapons, {name = receivedWeapon})
 end
 
 local function stockStoreInventory(nodes)

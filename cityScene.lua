@@ -51,8 +51,8 @@ function CityScene:draw()
         love.graphics.print(upgrade, 100, 100 + i * 20)
     end
 
-    for k, v in pairs(self.weapons) do
-        love.graphics.print(k, 100, 200)
+    if table.getn(self.weapons) > 0 then
+        love.graphics.print(self.weapons[1].name, 100, 200)
     end
 end
 
