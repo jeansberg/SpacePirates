@@ -15,18 +15,18 @@ local function oneOrNone()
     end
 end
 
-local function getRandomGun()
+local function getRandomGun(weapons)
     local roll = math.random(0, 1)
     if roll == 0 then
-        return nil
+        return
     else
         roll = math.random(1, 3)
         if roll == 1 then
-            return "debuff"
+            weapons["debuff"] = true
         elseif roll == 2 then
-            return "crit"
+             weapons["crit"] = true
         elseif roll == 2 then
-            return "pierce"
+            weapons["pierce"] = true
         end
     end
 end
@@ -37,7 +37,7 @@ function Pirate:new()
     local armor = oneOrNone()
     local numAmmo = oneOrNone()
     local weapons = {}
-    weapons[getRandomGun()] = true
+    getRandomGun(weapons)
 
     local o = ship.newShip(dodge, crit, armor, hp, numAmmo, weapons)
     o.shipType = "pirate"

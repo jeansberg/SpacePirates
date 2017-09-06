@@ -106,6 +106,17 @@ combatScene.buttons = {
             combatScene.fsm:setState(combatScene.timeOutState)
         end,
         "smallFont"
+    ),
+    utility.newButton(
+        550,
+        550,
+        "Use Ammo",
+        false,
+        true,
+        function()
+            combatScene.usingAmmo = not combatScene.usingAmmo
+        end,
+        "smallFont"
     )
 }
 
@@ -130,6 +141,12 @@ function combatScene.playerTurn:enter()
     combatScene.buttons[5].visible = true
     combatScene.buttons[6].visible = true
     combatScene.buttons[7].visible = true
+    combatScene.buttons[8].visible = true
+end
+
+function combatScene.playerTurn:update(dt)
+    combatScene.buttons[8].selected = combatScene.usingAmmo and combatScene.player.numAmmo > 0
+    combatScene.buttons[8].enabled = combatScene.player.numAmmo > 0
 end
 
 function combatScene.playerTurn:exit()
@@ -137,6 +154,7 @@ function combatScene.playerTurn:exit()
     combatScene.buttons[5].visible = false
     combatScene.buttons[6].visible = false
     combatScene.buttons[7].visible = false
+    combatScene.buttons[8].visible = false
 end
 
 combatScene.enemyTurn = stateMachine.newState()
@@ -153,9 +171,6 @@ function combatScene.enemyTurn:enter()
         combatScene.timeOutState.nextState = combatScene.newTurnState
         combatScene.fsm:setState(combatScene.timeOutState)
     end
-end
-
-function combatScene.enemyTurn:update(dt)
 end
 
 local function drawLoot(loot)

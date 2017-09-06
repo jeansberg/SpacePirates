@@ -69,6 +69,16 @@ function utility.drawButtons(buttons)
 
     for i = 1, table.getn(buttons) do
         button = buttons[i]
+        if button.selected and button.visible then
+            love.graphics.rectangle(
+                "line",
+                button.xPos - 3,
+                button.yPos - 4,
+                resources.getLineWidth(button.text, "smallFont") + 1,
+                resources.getLineHeight("smallFont") + 1
+            )
+        end
+
         if button.active then
             resources.drawWithColor(
                 255,
