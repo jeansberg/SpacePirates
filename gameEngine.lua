@@ -7,6 +7,10 @@ local utility = require("utility")
 local resources = require("resources")
 local stateMachine = require("stateMachine")
 local player = require("player")
+local pirate = require("pirate")
+local highLevelPirate = require("highLevelPirate")
+local keyStarPirate = require("keyStarPirate")
+local merchantShip = require("merchantShip")
 
 local starrySky = resources.images.starrySky
 
@@ -44,6 +48,56 @@ local function shuffle(tbl)
         tbl[i], tbl[rand] = tbl[rand], tbl[i]
     end
     return tbl
+end
+
+local function getRandomUpgrade(node)
+    local roll = math.random(1, 3)
+    if roll == 1 then
+        table.insert(node.upgrades, {"armor"})
+    elseif roll == 2 then
+        table.insert(node.upgrades, {"crit"})
+    elseif roll == 3 then
+        table.insert(node.upgrades, {"dodge"})
+    end
+end
+
+local function getRandomGun(weapons)
+    local specialWeapons = {}
+    if not weapons["debuff"] then
+        table.insert(specialWeapons, "debuff")
+    end
+    if not weapons["crit"] then
+        table.insert(specialWeapons, "crit")
+    end
+    if not weapons["pierce"] then
+        table.insert(specialWeapons, "pierce")
+    end
+
+    local roll = math.random(1, table.getn(specialWeapons))
+    local receivedWeapon = specialWeapons[roll]
+    table.insert(weapons, {receivedWeapon = true})
+end
+
+local function stockStoreInventory(nodes)
+    local weapons = {}
+    getRandomGun(weapons)
+    getRandomGun(weapons)
+    local counter = 0
+
+    for i = 1, table.getn(nodes) do
+        local node = nodes[i]
+        if node.type == "city" then
+            counter = counter + 1
+            node.upgrades = {}
+            node.weapons = {}
+            getRandomUpgrade(node)
+            getRandomUpgrade(node)
+
+            if counter < 3 then
+                table.insert(node.weapons, weapons[counter])
+            end
+        end
+    end
 end
 
 local function addNamesToNormal(nodes)
@@ -97,16 +151,30 @@ local function randomizeNodes(nodes)
     end
 
     addTypeToRandom(nodes, "key", isSpecial)
-
     addNamesToNormal(nodes)
+    stockStoreInventory(nodes)
 end
 
-local function enterCombat()
+local function enterCombat(enemyType)
     gameEngine.fsm:setState(gameEngine.combatState)
+
+    local enemy = {}
+    print("type: " .. enemyType)
+    if enemyType == "pirate" then
+        enemy = pirate.newPirate()
+    elseif enemyType == "highLevelPirate" then
+        enemy = highLevelPirate.newHighLevelPirate()
+    elseif enemyType == "keyStarPirate" then
+        enemy = keyStarPirate.newKeyStarPirate()
+    elseif enemyType == "merchantShip" then
+        enemy = merchantShip.newMerchantShip()
+    end
+    gameEngine.combatScene = combatScene.newCombatScene(gameEngine.player, enemy)
 end
 
-local function enterCity()
+local function enterCity(node)
     gameEngine.fsm:setState(gameEngine.cityState)
+    gameEngine.cityScene = cityScene.newCityScene(node, gameEngine.player)
 end
 
 local function exitScene(message)
@@ -328,7 +396,6 @@ end
 
 gameEngine.combatState = stateMachine.newState()
 function gameEngine.combatState:enter()
-    gameEngine.combatScene = combatScene.newCombatScene(gameEngine.player)
     resources.playMusic(battleTheme)
 end
 
@@ -342,7 +409,6 @@ end
 
 gameEngine.cityState = stateMachine.newState()
 function gameEngine.cityState.enter()
-    gameEngine.cityScene = cityScene.newCityScene()
     resources.playMusic(cityTheme)
 end
 

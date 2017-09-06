@@ -146,10 +146,11 @@ end
 
 function combatScene.playerTurn:update(dt)
     combatScene.buttons[8].selected = combatScene.usingAmmo and combatScene.player.numAmmo > 0
-    combatScene.buttons[8].enabled = combatScene.player.numAmmo > 0
 end
 
 function combatScene.playerTurn:exit()
+    combatScene.buttons[8].enabled = combatScene.player.numAmmo > 0
+
     combatScene.buttons[4].visible = false
     combatScene.buttons[5].visible = false
     combatScene.buttons[6].visible = false
@@ -159,7 +160,7 @@ end
 
 combatScene.enemyTurn = stateMachine.newState()
 function combatScene.enemyTurn:enter()
-    if combatScene.enemy.shipType == "pirate" and combatScene.enemy.hp < 1 then
+    if combatScene.enemy.hp < 1 then
         combatScene.timeOutState.nextState = combatScene.enemyDeath
         combatScene.fsm:setState(combatScene.timeOutState)
     elseif combatScene.enemy.shipType == "pirate" and combatScene.enemy.hp < 10 then
@@ -168,7 +169,11 @@ function combatScene.enemyTurn:enter()
     else
         shipAI.takeAction(combatScene.enemy, combatScene.player)
 
-        combatScene.timeOutState.nextState = combatScene.newTurnState
+        if combatScene.enemy.shipType == "keyStarPirate" or combatScene.enemy.shipType == "boss" then
+            combatScene.timeOutState.nextState = combatScene.playerTurn
+        else
+            combatScene.timeOutState.nextState = combatScene.newTurnState
+        end
         combatScene.fsm:setState(combatScene.timeOutState)
     end
 end
@@ -263,10 +268,10 @@ end
 ]]
 local CombatScene = {buttons = combatScene.buttons}
 
-function CombatScene:new(player)
+function CombatScene:new(player, enemy)
     local o = {}
     combatScene.player = player
-    combatScene.enemy = pirate.newPirate()
+    combatScene.enemy = enemy
     enableWeapons(player)
     setmetatable(o, self)
     self.__index = self
@@ -328,9 +333,9 @@ function CombatScene:update(dt)
     end
 end
 
-function combatScene.newCombatScene(player)
+function combatScene.newCombatScene(player, enemy)
     combatScene.fsm:setState(combatScene.newTurnState)
-    return CombatScene:new(player)
+    return CombatScene:new(player, enemy)
 end
 
 return combatScene

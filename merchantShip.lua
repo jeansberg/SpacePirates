@@ -27,6 +27,7 @@ end
 local MerchantShip = {}
 
 function MerchantShip:new()
+    print("New MerchantShip\n")
     local weapons = {}
     getRandomGun(weapons)
 

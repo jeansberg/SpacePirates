@@ -34,6 +34,7 @@ end
 local Pirate = {}
 
 function Pirate:new()
+    print("New Pirate\n")
     local armor = oneOrNone()
     local numAmmo = oneOrNone()
     local weapons = {}

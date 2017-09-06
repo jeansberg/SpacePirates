@@ -33,9 +33,9 @@ end
 local function getCrit(chance)
     local critRoll = math.random(1, 100)
     if critRoll <= chance * 100 then
-        return false
-    else
         return true
+    else
+        return false
     end
 end
 

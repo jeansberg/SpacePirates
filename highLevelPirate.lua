@@ -35,6 +35,7 @@ end
 local HighLevelPirate = {}
 
 function HighLevelPirate:new()
+    print("New HighLevelPirate\n")
     local numAmmo = oneOrTwo()
     local weapons = {}
     getRandomGun(weapons)

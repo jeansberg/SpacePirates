@@ -37,6 +37,7 @@ end
 local KeyStarPirate = {}
 
 function KeyStarPirate:new()
+    print("New KeyStarPirate\n")
     local weapons = {}
     getRandomGun(weapons)
     getRandomGun(weapons)
