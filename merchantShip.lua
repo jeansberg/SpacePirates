@@ -5,9 +5,8 @@ local ship = require("ship")
 local crit = 0.15
 local dodge = 0.2
 local numAmmo = 3
-local armor = 1
+local armor = 2
 local hp = 55
-local weapons = {standardCannon = true}
 
 local function getRandomGun()
     local roll = math.random(1, 3)
@@ -23,6 +22,7 @@ end
 local MerchantShip = {}
 
 function MerchantShip:new()
+    local weapons = {}
     weapons[getRandomGun()] = true
 
     local o = ship.newShip(dodge, crit, armor, hp, numAmmo, weapons)

@@ -49,6 +49,7 @@ function Ship:new(dodge, crit, armor, hp, numAmmo, weapons, money)
         weapons = weapons,
         money = money or 0
     }
+    o.weapons["standard"] = true
     setmetatable(o, self)
     self.__index = self
     return o

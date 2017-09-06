@@ -6,7 +6,6 @@ local crit = 0.1
 local dodge = 0.15
 local armor = 1
 local hp = 45
-local weapons = {standardCannon = true}
 
 local function oneOrTwo()
     local roll = math.random(0, 1)
@@ -32,15 +31,12 @@ local HighLevelPirate = {}
 
 function HighLevelPirate:new()
     local numAmmo = oneOrTwo()
+    local weapons = {}
     weapons[getRandomGun()] = true
 
     local o = ship.newShip(dodge, crit, armor, hp, numAmmo, weapons)
     o.shipType = "highLevelPirate"
     return o
-end
-
-function HighLevelPirate:addWeapon(weaponName)
-    self.weapons[weaponName] = true
 end
 
 function highLevelPirate.newHighLevelPirate()

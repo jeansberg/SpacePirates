@@ -5,7 +5,6 @@ local ship = require("ship")
 local crit = 0.05
 local dodge = 0.1
 local hp = 30
-local weapons = {standardCannon = true}
 
 local function oneOrNone()
     local roll = math.random(0, 1)
@@ -18,9 +17,9 @@ end
 
 local function getRandomGun()
     local roll = math.random(0, 1)
-  --  if roll == 0 then
-  --      return nil
-   -- else
+    if roll == 0 then
+        return nil
+    else
         roll = math.random(1, 3)
         if roll == 1 then
             return "debuff"
@@ -28,7 +27,7 @@ local function getRandomGun()
             return "crit"
         elseif roll == 2 then
             return "pierce"
-       -- end
+        end
     end
 end
 
@@ -37,7 +36,8 @@ local Pirate = {}
 function Pirate:new()
     local armor = oneOrNone()
     local numAmmo = oneOrNone()
-    weapons[getRandomGun() or "standard"] = true
+    local weapons = {}
+    weapons[getRandomGun()] = true
 
     local o = ship.newShip(dodge, crit, armor, hp, numAmmo, weapons)
     o.shipType = "pirate"
