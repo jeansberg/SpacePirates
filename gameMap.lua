@@ -54,10 +54,11 @@ end
 local GameMap = {}
 GameMap.nodes = {}
 GameMap.buttons = {
-    utility.newButton(
+    utility.UI.newButton(
         40,
         700,
         "Menu",
+        true,
         true,
         function()
             gameMap.enterMenu()
@@ -83,16 +84,47 @@ function GameMap:moveToNode(node)
     return false
 end
 
+local function getEncounterType(node)
+    local roll = math.random(1, 100)
+    if node.type == "city" then
+        return "city"
+    elseif node.type == "normal" then
+        if roll < 51 then
+            return "decision"
+        elseif roll > 90 then
+            return "merchantShip"
+        else
+            return "pirate"
+        end
+    elseif node.type == "dangerZone" then
+        if roll < 61 then
+            return "highLevelPirate"
+        else
+            return "dangerousDecision"
+        end
+    elseif node.type == "key" then
+        return "key"
+    end
+end
+
 local function enterScene(node)
-    if node.type == "dangerZone" then
-        gameMap.enterCombat()
-    elseif node.type == "city" then
-        gameMap.enterCity()
+    local type = getEncounterType(node)
+
+    if type == "pirate" then
+        gameMap.enterCombat("pirate")
+    elseif type == "highLevelPirate" then
+        gameMap.enterCombat("highLevelPirate")
+    elseif type == "merchantShip" then
+        gameMap.enterCombat("merchantShip")
+    elseif type == "key" then
+        gameMap.enterCombat("keyStarPirate")
+    elseif type == "city" then
+        gameMap.enterCity(node)
     end
 end
 
 function GameMap:update(dt)
-    utility.updateButtons(self.buttons)
+    utility.UI.updateButtons(self.buttons)
 
     self.hoveredNode = nil
     for i = 1, table.getn(self.nodes) do
@@ -122,18 +154,13 @@ function GameMap:update(dt)
             resources.playSound(warpDrive)
             self.currentNode = self.hoveredNode
             enterScene(self.currentNode)
-            return
-        end
-
-        if self.hoveredNode == self.currentNode then
-            enterScene(self.currentNode)
         end
     end
 end
 
 function GameMap:draw()
     love.graphics.draw(imgStarMap, 0, 0)
-    utility.drawButtons(self.buttons)
+    utility.UI.drawButtons(self.buttons)
 
     for i = 1, table.getn(self.nodes) do
         local node = self.nodes[i]
@@ -141,8 +168,6 @@ function GameMap:draw()
             love.graphics.draw(greenNode, node.xPos - nodeRadius, node.yPos - nodeRadius)
         elseif node.type == "dangerZone" then
             love.graphics.draw(redNode, node.xPos - nodeRadius, node.yPos - nodeRadius)
-        elseif node.type == "beacon" then
-            love.graphics.draw(blueNode, node.xPos - nodeRadius, node.yPos - nodeRadius)
         else
             love.graphics.draw(yellowNode, node.xPos - nodeRadius, node.yPos - nodeRadius)
         end
@@ -167,7 +192,7 @@ function GameMap:draw()
                 elseif node.type == "beacon" then
                     name = "Distress Beacon"
                 end
-                love.graphics.print(name, node.xPos - nodeRadius - 16, node.yPos - nodeRadius - 16)
+                love.graphics.print(name, 750, 20)
             end
         )
     end

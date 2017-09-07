@@ -10,12 +10,13 @@ utility.rect = function(xPos, yPos, width, height)
 end
 
 local Button = {}
-function Button:new(xPos, yPos, text, visible, action, font)
+function Button:new(xPos, yPos, text, visible, enabled, action, font)
     local o = {
         xPos = xPos,
         yPos = yPos,
         text = text,
         visible = visible,
+        enabled = enabled,
         execute = function()
             resources.playSound(menuClick)
             action()
@@ -40,11 +41,13 @@ function Button:focus()
     resources.playSound(menuSelect)
 end
 
-function utility.newButton(xPos, yPos, text, visible, action, font)
-    return Button:new(xPos, yPos, text, visible, action, font)
+utility.UI = {}
+
+function utility.UI.newButton(xPos, yPos, text, visible, enabled, action, font)
+    return Button:new(xPos, yPos, text, visible, enabled, action, font)
 end
 
-function utility.updateButtons(buttons)
+function utility.UI.updateButtons(buttons)
     for i = 1, table.getn(buttons) do
         local button = buttons[i]
         if input.mouseOver(button:getRect()) then
@@ -58,19 +61,41 @@ function utility.updateButtons(buttons)
     end
 end
 
-function utility.drawButtons(buttons)
+function utility.UI.drawButtons(buttons)
     local button = {}
     local printFunction = function()
-        love.graphics.print(button.text, button.xPos, button.yPos)
+        if button.visible then
+            love.graphics.print(button.text, button.xPos, button.yPos)
+        end
     end
 
     for i = 1, table.getn(buttons) do
         button = buttons[i]
+        if button.selected and button.visible then
+            love.graphics.rectangle(
+                "line",
+                button.xPos - 3,
+                button.yPos - 4,
+                resources.getLineWidth(button.text, "smallFont") + 1,
+                resources.getLineHeight("smallFont") + 1
+            )
+        end
+
         if button.active then
             resources.drawWithColor(
                 255,
                 0,
                 0,
+                255,
+                function()
+                    resources.printWithFont("smallFont", printFunction)
+                end
+            )
+        elseif not button.enabled then
+            resources.drawWithColor(
+                150,
+                150,
+                150,
                 255,
                 function()
                     resources.printWithFont("smallFont", printFunction)

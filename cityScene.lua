@@ -1,13 +1,28 @@
 local resources = require("resources")
 local input = require("input")
 local utility = require("utility")
-local combatBackground = resources.images.cityScene
+local cityBackground = resources.images.cityScene
 
 --[[
     City scene module.
     Code for handling city visits.
 ]]
 local cityScene = {}
+
+cityScene.buttons = {
+    utility.UI.newButton(
+        40,
+        700,
+        "Exit",
+        true,
+        true,
+        function()
+            cityScene.exitScene()
+        end,
+        "smallFont"
+    )
+}
+
 function cityScene.init(exitScene)
     cityScene.exitScene = exitScene
 end
@@ -15,38 +30,38 @@ end
 --[[
     City scene class.
 ]]
-local CityScene = {}
-CityScene.buttons = {
-    {
-        name = "backButton",
-        active = false,
-        text = "Back",
-        rect = utility.rect(40, 700, 50, 40),
-        activate = function()
-            cityScene.exitScene()
-        end
-    }
-}
+local CityScene = {buttons = cityScene.buttons}
 
-function CityScene:new()
+function CityScene:new(node, player)
     local o = {}
+    o.upgrades = node.upgrades
+    o.weapons = node.weapons
     setmetatable(o, self)
     self.__index = self
     return o
 end
 
 function CityScene:draw()
-    --love.graphics.draw(cityBackground, 0, 0)
+    love.graphics.draw(cityBackground, 0, 0)
 
-    utility.drawButtons(self.buttons)
+    utility.UI.drawButtons(self.buttons)
+
+    for i = 1, table.getn(self.upgrades) do
+        local upgrade = self.upgrades[i]
+        love.graphics.print(upgrade, 100, 100 + i * 20)
+    end
+
+    if table.getn(self.weapons) > 0 then
+        love.graphics.print(self.weapons[1].name, 100, 200)
+    end
 end
 
 function CityScene:update(dt)
-    utility.updateButtons(self.buttons)
+    utility.UI.updateButtons(self.buttons)
 end
 
-function cityScene.newCityScene()
-    return CityScene:new()
+function cityScene.newCityScene(node, player)
+    return CityScene:new(node, player)
 end
 
 return cityScene

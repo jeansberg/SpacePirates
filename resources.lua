@@ -29,14 +29,16 @@ resources.images.redNode = love.graphics.newImage("resources/images/redNode.png"
 resources.images.yellowNode = love.graphics.newImage("resources/images/yellowNode.png")
 resources.images.mermaidShip = love.graphics.newImage("resources/images/mermaidShip.png")
 resources.images.combatScene = love.graphics.newImage("resources/images/combatScene.png")
+resources.images.cityScene = love.graphics.newImage("resources/images/cityScene.png")
+resources.images.starrySky = love.graphics.newImage("resources/images/starrySky.png")
 
 resources.sounds.lowHealth = love.audio.newSource("resources/sounds/Low Health Alarm.mp3", "static")
 resources.sounds.warpDrive = love.audio.newSource("resources/sounds/Warp Drive.mp3", "static")
-resources.sounds.shipDamage =
+resources.sounds.damage = love.audio.newSource("resources/sounds/Damage to Ship.mp3", "static")
+resources.sounds.damage2 =
     love.audio.newSource("resources/sounds/Damage to Ship take 2.mp3", "static")
 resources.sounds.laserShot = love.audio.newSource("resources/sounds/Laser Shot.mp3", "static")
 resources.sounds.purchase = love.audio.newSource("resources/sounds/Purchase Sound.mp3", "static")
-resources.sounds.shipDamage2 = love.audio.newSource("resources/sounds/Damage to Ship.mp3", "static")
 resources.sounds.menuSelect =
     love.audio.newSource("resources/sounds/Menu Select Button.mp3", "static")
 resources.sounds.shipDestroyed =
@@ -45,11 +47,11 @@ resources.sounds.warpDrive2 =
     love.audio.newSource("resources/sounds/Warp Drive take 2.mp3", "static")
 resources.sounds.purchase = love.audio.newSource("resources/sounds/Purchase Sound.mp3", "static")
 resources.sounds.menuClick = love.audio.newSource("resources/sounds/Menu Click.mp3", "static")
-resources.sounds.damage2 =
-    love.audio.newSource("resources/sounds/Damage to Ship take 2.mp3", "static")
-resources.sounds.damage = love.audio.newSource("resources/sounds/Damage to Ship.mp3", "static")
 resources.sounds.shot = love.audio.newSource("resources/sounds/Laser Shot.mp3", "static")
+resources.sounds.debuffAttack = love.audio.newSource("resources/sounds/Debuff Attack.mp3", "static")
+resources.sounds.critCannon = love.audio.newSource("resources/sounds/Crit Cannon.mp3", "static")
 resources.sounds.alarm = love.audio.newSource("resources/sounds/Low Health Alarm.mp3", "static")
+resources.sounds.dodge = love.audio.newSource("resources/sounds/Dodge.mp3", "static")
 
 resources.music.cityTheme = love.audio.newSource("resources/music/City.mp3", "stream")
 resources.music.mainTheme = love.audio.newSource("resources/music/Main Theme.mp3", "stream")
@@ -60,6 +62,7 @@ resources.music.credits = love.audio.newSource("resources/music/Credits.mp3", "s
 
 -- Play a sound
 function resources.playSound(sound)
+    sound:stop()
     sound:rewind()
     sound:play()
 end
@@ -99,19 +102,19 @@ function resources.drawWithColor(r, g, b, a, drawSomething)
     love.graphics.setColor(_r, _g, _b, _a)
 end
 
+function resources.printWithFont(fontName, printSomething)
+    local _font = love.graphics.getFont()
+    love.graphics.setFont(fonts[fontName])
+    printSomething()
+    love.graphics.setFont(_font)
+end
+
 function resources.getLineWidth(text, fontName)
     return fonts[fontName]:getWidth(text)
 end
 
 function resources.getLineHeight(fontName)
     return fonts[fontName]:getHeight()
-end
-
-function resources.printWithFont(fontName, printSomething)
-    local _font = love.graphics.getFont()
-    love.graphics.setFont(fonts[fontName])
-    printSomething()
-    love.graphics.setFont(_font)
 end
 
 return resources
