@@ -137,6 +137,8 @@ end
 combatScene.playerTurn = stateMachine.newState()
 function combatScene.playerTurn:enter()
     print("Player turn...\n")
+    combatScene.buttons[8].enabled = combatScene.player.numAmmo > 0
+
     combatScene.buttons[4].visible = true
     combatScene.buttons[5].visible = true
     combatScene.buttons[6].visible = true

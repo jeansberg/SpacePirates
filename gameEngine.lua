@@ -50,15 +50,21 @@ local function shuffle(tbl)
     return tbl
 end
 
-local function getRandomUpgrade(node)
-    local roll = math.random(1, 3)
-    if roll == 1 then
-        table.insert(node.upgrades, {"armor"})
-    elseif roll == 2 then
-        table.insert(node.upgrades, {"crit"})
-    elseif roll == 3 then
-        table.insert(node.upgrades, {"dodge"})
+local function getUniqueUpgrade(node)
+    local upgrades = {}
+    if not node.upgrades["dodge"] then
+        table.insert(upgrades, "dodge")
     end
+    if not node.upgrades["crit"] then
+        table.insert(upgrades, "crit")
+    end
+    if not node.upgrades["armor"] then
+        table.insert(upgrades, "armor")
+    end
+
+    local roll = math.random(1, table.getn(upgrades))
+    local receivedUpgrade = upgrades[roll]
+    node.upgrades[receivedUpgrade] = true
 end
 
 local function getUniqueGun(weapons)
@@ -75,13 +81,14 @@ local function getUniqueGun(weapons)
 
     local roll = math.random(1, table.getn(specialWeapons))
     local receivedWeapon = specialWeapons[roll]
-    table.insert(weapons, {name = receivedWeapon})
+    table.insert(weapons, receivedWeapon)
 end
 
 local function stockStoreInventory(nodes)
     local weapons = {}
     getUniqueGun(weapons)
     getUniqueGun(weapons)
+
     local counter = 0
 
     for i = 1, table.getn(nodes) do
@@ -90,11 +97,11 @@ local function stockStoreInventory(nodes)
             counter = counter + 1
             node.upgrades = {}
             node.weapons = {}
-            getRandomUpgrade(node)
-            getRandomUpgrade(node)
+            getUniqueUpgrade(node)
+            getUniqueUpgrade(node)
 
             if counter < 3 then
-                table.insert(node.weapons, weapons[counter])
+                node.weapons[weapons[counter]] = true
             end
         end
     end

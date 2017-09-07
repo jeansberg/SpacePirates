@@ -165,11 +165,11 @@ function GameMap:draw()
     for i = 1, table.getn(self.nodes) do
         local node = self.nodes[i]
         if node.type == "city" then
-            love.graphics.draw(greenNode, node.xPos - nodeRadius, node.yPos - nodeRadius)
+            love.graphics.draw(blueNode, node.xPos - nodeRadius, node.yPos - nodeRadius)
         elseif node.type == "dangerZone" then
             love.graphics.draw(redNode, node.xPos - nodeRadius, node.yPos - nodeRadius)
         else
-            love.graphics.draw(yellowNode, node.xPos - nodeRadius, node.yPos - nodeRadius)
+            love.graphics.draw(greenNode, node.xPos - nodeRadius, node.yPos - nodeRadius)
         end
     end
 

@@ -41,6 +41,29 @@ function Button:focus()
     resources.playSound(menuSelect)
 end
 
+local Icon = {size = 128}
+function Icon:new(xPos, yPos, image, visible, enabled, action, sound)
+    local o = {
+        xPos = xPos,
+        yPos = yPos,
+        image = image,
+        visible = visible,
+        enabled = enabled,
+        execute = function()
+            resources.playSound(sound or menuClick)
+            action()
+        end,
+        font = font or "largeFont"
+    }
+    setmetatable(o, self)
+    self.__index = self
+    return o
+end
+
+function Icon:getRect()
+    return utility.rect(self.xPos, self.yPos, self.size, self.size)
+end
+
 utility.UI = {}
 
 function utility.UI.newButton(xPos, yPos, text, visible, enabled, action, font)
@@ -103,6 +126,51 @@ function utility.UI.drawButtons(buttons)
             )
         else
             resources.printWithFont("smallFont", printFunction)
+        end
+    end
+end
+
+function utility.UI.newIcon(xPos, yPos, image, visible, enabled, action, sound)
+    return Icon:new(xPos, yPos, image, visible, enabled, action, sound)
+end
+
+function utility.UI.updateIcons(icons)
+    for i = 1, table.getn(icons) do
+        local icon = icons[i]
+        if input.mouseOver(icon:getRect()) then
+            icon.active = true
+            if input.getLeftClick() then
+                if icon.enabled and icon.visible then
+                    icon.execute()
+                end
+            end
+        else
+            icon.active = false
+        end
+    end
+end
+
+function utility.UI.drawIcons(icons)
+    local icon = {}
+    local function drawRect()
+        love.graphics.rectangle("fill", icon.xPos, icon.yPos, icon.size, icon.size)
+    end
+    local function drawIcon()
+        love.graphics.draw(icon.image, icon.xPos, icon.yPos)
+    end
+
+    for i = 1, table.getn(icons) do
+        icon = icons[i]
+        if icon.visible then
+            if icon.active then
+                resources.drawWithColor(255, 255, 255, 100, drawRect)
+            end
+
+            if icon.enabled then
+                drawIcon()
+            else
+                resources.drawWithColor(255, 255, 255, 100, drawIcon)
+            end
         end
     end
 end
