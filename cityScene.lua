@@ -119,16 +119,16 @@ local function purchase(node, item)
         node.upgrades["armor"] = false
     elseif item == "debuffCannon" then
         player.money = player.money - 50
-        player.weapons["debuffCannon"] = true
-        node.weapons["debuffCannon"] = false
+        player.weapons["debuff"] = true
+        node.weapons["debuff"] = false
     elseif item == "critCannon" then
         player.money = player.money - 50
-        player.weapons["critCannon"] = true
-        node.weapons["critCannon"] = false
+        player.weapons["crit"] = true
+        node.weapons["crit"] = false
     elseif item == "pierceCannon" then
         player.money = player.money - 50
-        player.weapons["pierceCannon"] = true
-        node.weapons["pierceCannon"] = false
+        player.weapons["pierce"] = true
+        node.weapons["pierce"] = false
     end
 
     updateAffordable()
