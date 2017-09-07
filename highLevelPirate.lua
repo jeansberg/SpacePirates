@@ -7,15 +7,6 @@ local dodge = 0.15
 local armor = 1
 local hp = 45
 
-local function oneOrTwo()
-    local roll = math.random(0, 1)
-    if roll == 1 then
-        return 2
-    else
-        return 1
-    end
-end
-
 local function getRandomGun(weapons)
     local roll = math.random(0, 1)
     if roll == 0 then
@@ -36,7 +27,7 @@ local HighLevelPirate = {}
 
 function HighLevelPirate:new()
     print("New HighLevelPirate\n")
-    local numAmmo = oneOrTwo()
+    local numAmmo = math.random(1, 2)
     local weapons = {}
     getRandomGun(weapons)
 

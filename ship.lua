@@ -143,6 +143,22 @@ function Ship:attack(target, weapon, useAmmo)
     end
 end
 
+function ship.getRandomGun(weapons)
+    local roll = math.random(0, 1)
+    if roll == 0 then
+        return
+    else
+        roll = math.random(1, 3)
+        if roll == 1 then
+            weapons["debuff"] = true
+        elseif roll == 2 then
+            weapons["crit"] = true
+        elseif roll == 2 then
+            weapons["pierce"] = true
+        end
+    end
+end
+
 function ship.newShip(dodge, crit, armor, hp, numAmmo, weapons, money)
     return Ship:new(dodge, crit, armor, hp, numAmmo, weapons, money)
 end

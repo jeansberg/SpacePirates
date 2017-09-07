@@ -1,7 +1,7 @@
 local resources = require("resources")
 local input = require("input")
 local utility = require("utility")
-local combatBackground = resources.images.cityScene
+local cityBackground = resources.images.cityScene
 
 --[[
     City scene module.
@@ -10,7 +10,7 @@ local combatBackground = resources.images.cityScene
 local cityScene = {}
 
 cityScene.buttons = {
-    utility.newButton(
+    utility.UI.newButton(
         40,
         700,
         "Exit",
@@ -42,9 +42,9 @@ function CityScene:new(node, player)
 end
 
 function CityScene:draw()
-    --love.graphics.draw(cityBackground, 0, 0)
+    love.graphics.draw(cityBackground, 0, 0)
 
-    utility.drawButtons(self.buttons)
+    utility.UI.drawButtons(self.buttons)
 
     for i = 1, table.getn(self.upgrades) do
         local upgrade = self.upgrades[i]
@@ -57,7 +57,7 @@ function CityScene:draw()
 end
 
 function CityScene:update(dt)
-    utility.updateButtons(self.buttons)
+    utility.UI.updateButtons(self.buttons)
 end
 
 function cityScene.newCityScene(node, player)

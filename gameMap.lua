@@ -54,7 +54,7 @@ end
 local GameMap = {}
 GameMap.nodes = {}
 GameMap.buttons = {
-    utility.newButton(
+    utility.UI.newButton(
         40,
         700,
         "Menu",
@@ -124,7 +124,7 @@ local function enterScene(node)
 end
 
 function GameMap:update(dt)
-    utility.updateButtons(self.buttons)
+    utility.UI.updateButtons(self.buttons)
 
     self.hoveredNode = nil
     for i = 1, table.getn(self.nodes) do
@@ -160,7 +160,7 @@ end
 
 function GameMap:draw()
     love.graphics.draw(imgStarMap, 0, 0)
-    utility.drawButtons(self.buttons)
+    utility.UI.drawButtons(self.buttons)
 
     for i = 1, table.getn(self.nodes) do
         local node = self.nodes[i]

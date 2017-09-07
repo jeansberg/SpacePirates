@@ -41,11 +41,13 @@ function Button:focus()
     resources.playSound(menuSelect)
 end
 
-function utility.newButton(xPos, yPos, text, visible, enabled, action, font)
+utility.UI = {}
+
+function utility.UI.newButton(xPos, yPos, text, visible, enabled, action, font)
     return Button:new(xPos, yPos, text, visible, enabled, action, font)
 end
 
-function utility.updateButtons(buttons)
+function utility.UI.updateButtons(buttons)
     for i = 1, table.getn(buttons) do
         local button = buttons[i]
         if input.mouseOver(button:getRect()) then
@@ -59,7 +61,7 @@ function utility.updateButtons(buttons)
     end
 end
 
-function utility.drawButtons(buttons)
+function utility.UI.drawButtons(buttons)
     local button = {}
     local printFunction = function()
         if button.visible then

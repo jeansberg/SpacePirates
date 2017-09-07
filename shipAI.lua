@@ -28,9 +28,9 @@ end
 local function useSpecialAmmo(chance)
     local roll = math.random(1, 100)
     if roll <= chance * 100 then
-        return false
-    else
         return true
+    else
+        return false
     end
 end
 

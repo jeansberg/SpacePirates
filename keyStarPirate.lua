@@ -8,16 +8,7 @@ local armor = 2
 local hp = 70
 local numAmmo = 5
 
-local function oneOrTwo()
-    local roll = math.random(0, 1)
-    if roll == 1 then
-        return 2
-    else
-        return 1
-    end
-end
-
-local function getRandomGun(weapons)
+local function getUniqueGun(weapons)
     local specialWeapons = {}
     if not weapons["debuff"] then
         table.insert(specialWeapons, "debuff")
@@ -39,8 +30,8 @@ local KeyStarPirate = {}
 function KeyStarPirate:new()
     print("New KeyStarPirate\n")
     local weapons = {}
-    getRandomGun(weapons)
-    getRandomGun(weapons)
+    getUniqueGun(weapons)
+    getUniqueGun(weapons)
 
     local o = ship.newShip(dodge, crit, armor, hp, numAmmo, weapons)
     o.shipType = "keyStarPirate"

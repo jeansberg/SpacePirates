@@ -17,7 +17,7 @@ local pirate = require("pirate")
 local combatScene = {}
 
 combatScene.buttons = {
-    utility.newButton(
+    utility.UI.newButton(
         40,
         700,
         "Exit",
@@ -28,7 +28,7 @@ combatScene.buttons = {
         end,
         "smallFont"
     ),
-    utility.newButton(
+    utility.UI.newButton(
         450,
         500,
         "Fight",
@@ -39,7 +39,7 @@ combatScene.buttons = {
         end,
         "smallFont"
     ),
-    utility.newButton(
+    utility.UI.newButton(
         650,
         500,
         "Flee",
@@ -55,7 +55,7 @@ combatScene.buttons = {
         end,
         "smallFont"
     ),
-    utility.newButton(
+    utility.UI.newButton(
         450,
         500,
         "Standard",
@@ -68,7 +68,7 @@ combatScene.buttons = {
         end,
         "smallFont"
     ),
-    utility.newButton(
+    utility.UI.newButton(
         650,
         500,
         "Blinding",
@@ -81,7 +81,7 @@ combatScene.buttons = {
         end,
         "smallFont"
     ),
-    utility.newButton(
+    utility.UI.newButton(
         450,
         600,
         "Critical",
@@ -94,7 +94,7 @@ combatScene.buttons = {
         end,
         "smallFont"
     ),
-    utility.newButton(
+    utility.UI.newButton(
         650,
         600,
         "Armor Piercing",
@@ -107,7 +107,7 @@ combatScene.buttons = {
         end,
         "smallFont"
     ),
-    utility.newButton(
+    utility.UI.newButton(
         550,
         550,
         "Use Ammo",
@@ -149,7 +149,10 @@ function combatScene.playerTurn:update(dt)
 end
 
 function combatScene.playerTurn:exit()
-    combatScene.buttons[8].enabled = combatScene.player.numAmmo > 0
+    if combatScene.player.numAmmo < 1 then
+        combatScene.usingAmmo = false
+        combatScene.buttons[8].enabled = false
+    end
 
     combatScene.buttons[4].visible = false
     combatScene.buttons[5].visible = false
@@ -311,7 +314,7 @@ function CombatScene:draw()
     love.graphics.draw(combatBackground, 0, 0)
 
     drawPlayerStats(combatScene.player)
-    utility.drawButtons(self.buttons)
+    utility.UI.drawButtons(self.buttons)
     combatScene.fsm.state:draw()
 end
 

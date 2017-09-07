@@ -61,7 +61,7 @@ local function getRandomUpgrade(node)
     end
 end
 
-local function getRandomGun(weapons)
+local function getUniqueGun(weapons)
     local specialWeapons = {}
     if not weapons["debuff"] then
         table.insert(specialWeapons, "debuff")
@@ -80,8 +80,8 @@ end
 
 local function stockStoreInventory(nodes)
     local weapons = {}
-    getRandomGun(weapons)
-    getRandomGun(weapons)
+    getUniqueGun(weapons)
+    getUniqueGun(weapons)
     local counter = 0
 
     for i = 1, table.getn(nodes) do
@@ -276,7 +276,7 @@ end
 
 gameEngine.menuState = stateMachine.newState()
 gameEngine.menuState.Buttons = {
-    utility.newButton(
+    utility.UI.newButton(
         500,
         260,
         "Resume Game",
@@ -286,7 +286,7 @@ gameEngine.menuState.Buttons = {
             gameEngine.fsm:setState(gameEngine.mapState)
         end
     ),
-    utility.newButton(
+    utility.UI.newButton(
         500,
         300,
         "New Game",
@@ -300,7 +300,7 @@ gameEngine.menuState.Buttons = {
             gameEngine.fsm:setState(gameEngine.mapState)
         end
     ),
-    utility.newButton(
+    utility.UI.newButton(
         500,
         340,
         "Options",
@@ -309,7 +309,7 @@ gameEngine.menuState.Buttons = {
         function()
         end
     ),
-    utility.newButton(
+    utility.UI.newButton(
         500,
         380,
         "Quit",
