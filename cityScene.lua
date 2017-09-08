@@ -13,6 +13,7 @@ local pierceCannonIcon = resources.images.pierceCannonIcon
 
 local repair = resources.sounds.repair
 local reload = resources.sounds.reload
+local purchaseSound = resources.sounds.purchase
 
 --[[
     City scene module.
@@ -159,7 +160,8 @@ function cityScene.initIcons()
             true,
             function()
                 purchase(cityScene.node, "repair")
-            end
+            end,
+            repair
         ),
         utility.UI.newIcon(
             iconStart + iconOffset * 1,
@@ -169,7 +171,8 @@ function cityScene.initIcons()
             true,
             function()
                 purchase(cityScene.node, "ammo")
-            end
+            end,
+            reload
         ),
         utility.UI.newIcon(
             iconStart + iconOffset * 2,
@@ -179,7 +182,8 @@ function cityScene.initIcons()
             true,
             function()
                 purchase(cityScene.node, "dodge")
-            end
+            end,
+            purchaseSound
         ),
         utility.UI.newIcon(
             iconStart + iconOffset * 3,
@@ -189,7 +193,8 @@ function cityScene.initIcons()
             true,
             function()
                 purchase(cityScene.node, "crit")
-            end
+            end,
+            purchaseSound
         ),
         utility.UI.newIcon(
             iconStart + iconOffset * 4,
@@ -199,7 +204,8 @@ function cityScene.initIcons()
             true,
             function()
                 purchase(cityScene.node, "armor")
-            end
+            end,
+            purchaseSound
         ),
         utility.UI.newIcon(
             iconStart + iconOffset * 5,
@@ -209,7 +215,8 @@ function cityScene.initIcons()
             true,
             function()
                 purchase(cityScene.node, "critCannon")
-            end
+            end,
+            purchaseSound
         ),
         utility.UI.newIcon(
             iconStart + iconOffset * 6,
@@ -219,7 +226,8 @@ function cityScene.initIcons()
             true,
             function()
                 purchase(cityScene.node, "debuffCannon")
-            end
+            end,
+            purchaseSound
         ),
         utility.UI.newIcon(
             iconStart + iconOffset * 7,
@@ -229,7 +237,8 @@ function cityScene.initIcons()
             true,
             function()
                 purchase(cityScene.node, "pierceCannon")
-            end
+            end,
+            purchaseSound
         )
     }
 end

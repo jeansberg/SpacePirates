@@ -5,8 +5,13 @@ local timer = require("timer")
 local stateMachine = require("stateMachine")
 local shipAI = require("shipAI")
 local lootSystem = require("loot")
+local particles = require("particles")
 
 local combatBackground = resources.images.combatScene
+local greenLaser = resources.images.greenLaser
+local redLaser = resources.images.redLaser
+
+local reload = resources.sounds.reload
 
 --[[
     Combat scene module.
@@ -15,6 +20,8 @@ local combatBackground = resources.images.combatScene
 local pirate = require("pirate")
 
 local combatScene = {}
+combatScene.projectiles = {}
+combatScene.explosions = {}
 
 combatScene.buttons = {
     utility.UI.newButton(
@@ -47,8 +54,14 @@ combatScene.buttons = {
         true,
         function()
             combatScene.player:takeDamage(10)
+            print(combatScene.player.hp)
             if combatScene.player.hp < 1 then
-                combatScene.exitScene("diedFleeing")
+                local explosion = particles.getBigExplosion()
+                table.insert(combatScene.explosions, explosion)
+                explosion:setPosition(325, 245)
+                explosion:emit(200)
+                combatScene.timeOutState.nextState = combatScene.newTurnState
+                combatScene.fsm:setState(combatScene.timeOutState)
             else
                 combatScene.exitScene("fledCombat")
             end
@@ -62,7 +75,12 @@ combatScene.buttons = {
         false,
         true,
         function()
-            combatScene.player:attack(combatScene.enemy, "standard", combatScene.usingAmmo)
+            local hit =
+                combatScene.player:attack(combatScene.enemy, "standard", combatScene.usingAmmo)
+            table.insert(
+                combatScene.projectiles,
+                {xPos = 557, yPos = 244, direction = "right", image = greenLaser, hit = hit}
+            )
             combatScene.timeOutState.nextState = combatScene.enemyTurn
             combatScene.fsm:setState(combatScene.timeOutState)
         end,
@@ -75,7 +93,12 @@ combatScene.buttons = {
         false,
         false,
         function()
-            combatScene.player:attack(combatScene.enemy, "debuff", combatScene.usingAmmo)
+            local hit =
+                combatScene.player:attack(combatScene.enemy, "debuff", combatScene.usingAmmo)
+            table.insert(
+                combatScene.projectiles,
+                {xPos = 557, yPos = 244, direction = "right", image = greenLaser, hit = hit}
+            )
             combatScene.timeOutState.nextState = combatScene.enemyTurn
             combatScene.fsm:setState(combatScene.timeOutState)
         end,
@@ -88,7 +111,11 @@ combatScene.buttons = {
         false,
         false,
         function()
-            combatScene.player:attack(combatScene.enemy, "crit", combatScene.usingAmmo)
+            local hit = combatScene.player:attack(combatScene.enemy, "crit", combatScene.usingAmmo)
+            table.insert(
+                combatScene.projectiles,
+                {xPos = 557, yPos = 244, direction = "right", image = greenLaser, hit = hit}
+            )
             combatScene.timeOutState.nextState = combatScene.enemyTurn
             combatScene.fsm:setState(combatScene.timeOutState)
         end,
@@ -101,7 +128,12 @@ combatScene.buttons = {
         false,
         false,
         function()
-            combatScene.player:attack(combatScene.enemy, "pierce", combatScene.usingAmmo)
+            local hit =
+                combatScene.player:attack(combatScene.enemy, "pierce", combatScene.usingAmmo)
+            table.insert(
+                combatScene.projectiles,
+                {xPos = 557, yPos = 244, direction = "right", image = greenLaser, hit = hit}
+            )
             combatScene.timeOutState.nextState = combatScene.enemyTurn
             combatScene.fsm:setState(combatScene.timeOutState)
         end,
@@ -116,6 +148,18 @@ combatScene.buttons = {
         function()
             combatScene.usingAmmo = not combatScene.usingAmmo
         end,
+        "smallFont",
+        reload
+    ),
+    utility.UI.newButton(
+        550,
+        550,
+        "Restart",
+        false,
+        true,
+        function()
+            combatScene.exitScene("restart")
+        end,
         "smallFont"
     )
 }
@@ -125,8 +169,15 @@ combatScene.fsm = stateMachine.newStateMachine()
 combatScene.newTurnState = stateMachine.newState()
 function combatScene.newTurnState:enter()
     print("New turn...\n")
-    combatScene.buttons[2].visible = true
-    combatScene.buttons[3].visible = true
+    if combatScene.player.hp > 0 then
+        combatScene.buttons[2].visible = true
+        combatScene.buttons[3].visible = true
+        combatScene.buttons[9].visible = false
+    else
+        combatScene.buttons[2].visible = false
+        combatScene.buttons[3].visible = false
+        combatScene.buttons[9].visible = true
+    end
 end
 
 function combatScene.newTurnState:exit()
@@ -156,6 +207,21 @@ function combatScene.playerTurn:exit()
         combatScene.buttons[8].enabled = false
     end
 
+    if combatScene.enemy.hp < 1 then
+        local explosion = particles.getBigExplosion()
+        local explosion2 = particles.getBigExplosion()
+        local explosion3 = particles.getBigExplosion()
+        table.insert(combatScene.explosions, explosion)
+        table.insert(combatScene.explosions, explosion2)
+        table.insert(combatScene.explosions, explosion3)
+        explosion:setPosition(955, 225)
+        explosion:emit(1000)
+        explosion2:setPosition(1076, 111)
+        explosion2:emit(1000)
+        explosion3:setPosition(960, 398)
+        explosion3:emit(1000)
+    end
+
     combatScene.buttons[4].visible = false
     combatScene.buttons[5].visible = false
     combatScene.buttons[6].visible = false
@@ -172,14 +238,26 @@ function combatScene.enemyTurn:enter()
         combatScene.timeOutState.nextState = combatScene.enemySurrender
         combatScene.fsm:setState(combatScene.timeOutState)
     else
-        shipAI.takeAction(combatScene.enemy, combatScene.player)
-
+        local hit = shipAI.takeAction(combatScene.enemy, combatScene.player)
+        table.insert(
+            combatScene.projectiles,
+            {xPos = 722, yPos = 244, direction = "left", image = redLaser, hit = hit}
+        )
         if combatScene.enemy.shipType == "keyStarPirate" or combatScene.enemy.shipType == "boss" then
             combatScene.timeOutState.nextState = combatScene.playerTurn
         else
             combatScene.timeOutState.nextState = combatScene.newTurnState
         end
         combatScene.fsm:setState(combatScene.timeOutState)
+    end
+end
+
+function combatScene.enemyTurn:exit()
+    if combatScene.player.hp < 1 then
+        local explosion = particles.getBigExplosion()
+        table.insert(combatScene.explosions, explosion)
+        explosion:setPosition(325, 245)
+        explosion:emit(200)
     end
 end
 
@@ -229,6 +307,7 @@ end
 combatScene.enemyDeath = stateMachine.newState()
 function combatScene.enemyDeath:enter()
     print("Enemy death...\n")
+
     combatScene.buttons[1].visible = true
     combatScene.loot = lootSystem.getLoot(combatScene.player, combatScene.enemy, "death")
 end
@@ -245,9 +324,31 @@ function combatScene.enemyDeath:draw()
 end
 
 combatScene.timeOutState = stateMachine.newState()
-combatScene.timeOutState.timer = timer.newTimer(2)
+combatScene.timeOutState.timer = timer.newTimer(1)
 
 function combatScene.timeOutState:update(dt)
+    if combatScene.enemy.hp < 1 then
+        local xPos = math.random(830, 1145)
+        local yPos = math.random(76, 392)
+        if table.getn(combatScene.explosions) < 2 then
+            local explosion = particles.getBigExplosion()
+            table.insert(combatScene.explosions, explosion)
+            explosion:setPosition(xPos, yPos)
+            explosion:emit(100)
+        end
+    end
+
+    if combatScene.player.hp < 1 then
+        local xPos = math.random(196, 476)
+        local yPos = math.random(160, 314)
+        if table.getn(combatScene.explosions) < 2 then
+            local explosion = particles.getBigExplosion()
+            table.insert(combatScene.explosions, explosion)
+            explosion:setPosition(xPos, yPos)
+            explosion:emit(100)
+        end
+    end
+
     if self.timer:update(dt) then
         combatScene.fsm:setState(self.nextState)
     end
@@ -312,8 +413,45 @@ local function drawPlayerStats(player)
     resources.printWithFont("smallFont", drawFunction)
 end
 
+local function drawProjectile()
+    for i = 1, table.getn(combatScene.projectiles) do
+        local projectile = combatScene.projectiles[i]
+        love.graphics.draw(projectile.image, projectile.xPos, projectile.yPos)
+    end
+end
+
+local function updateProjectile(dt)
+    for i = 1, table.getn(combatScene.projectiles) do
+        local projectile = combatScene.projectiles[i]
+        if projectile.direction == "left" then
+            projectile.xPos = projectile.xPos - dt * 2000
+            if projectile.hit and projectile.xPos < 560 then
+                table.remove(combatScene.projectiles, i)
+                local explosion = particles.getExplosion()
+                table.insert(combatScene.explosions, explosion)
+                explosion:setPosition(projectile.xPos, projectile.yPos)
+                explosion:emit(100)
+            end
+        else
+            projectile.xPos = projectile.xPos + dt * 2000
+            if projectile.hit and projectile.xPos > 722 then
+                table.remove(combatScene.projectiles, i)
+                local explosion = particles.getExplosion()
+                table.insert(combatScene.explosions, explosion)
+                explosion:setPosition(projectile.xPos, projectile.yPos)
+                explosion:emit(100)
+            end
+        end
+    end
+end
+
 function CombatScene:draw()
     love.graphics.draw(combatBackground, 0, 0)
+
+    drawProjectile()
+    for _, explosion in ipairs(combatScene.explosions) do
+        love.graphics.draw(explosion, 0, 0)
+    end
 
     drawPlayerStats(combatScene.player)
     utility.UI.drawButtons(self.buttons)
@@ -322,6 +460,9 @@ end
 
 function CombatScene:update(dt)
     combatScene.fsm.state:update(dt)
+
+    updateProjectile(dt)
+    particles.updateExplosions(dt, combatScene.explosions)
 
     for i = 1, table.getn(self.buttons) do
         local button = self.buttons[i]
@@ -339,8 +480,9 @@ function CombatScene:update(dt)
 end
 
 function combatScene.newCombatScene(player, enemy)
+    local scene = CombatScene:new(player, enemy)
     combatScene.fsm:setState(combatScene.newTurnState)
-    return CombatScene:new(player, enemy)
+    return scene
 end
 
 return combatScene

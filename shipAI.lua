@@ -51,7 +51,7 @@ function shipAI.takeAction(ship, target)
         end
     end
 
-    ship:attack(target, gun, useAmmo)
+    return ship:attack(target, gun, useAmmo)
 end
 
 return shipAI

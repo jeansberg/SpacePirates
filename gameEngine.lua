@@ -184,26 +184,25 @@ local function enterCity(node)
     gameEngine.cityScene = cityScene.newCityScene(node, gameEngine.player)
 end
 
-local function exitScene(message)
-    if message == "fledCombat" then
-        print("Player fled combat.\n")
-        resources.playSound(warp)
-    elseif message == "diedFleeing" then
-        print("Player attempted to flee but took too much damage.\n")
-    end
-    gameEngine.fsm:setState(gameEngine.mapState)
-end
-
-local function enterMenu()
-    gameEngine.fsm:setState(gameEngine.menuState)
-end
-
 local function generateMap()
     local nodes = mapData.getNodes()
 
     randomizeNodes(nodes)
 
     return gameMap.newGameMap(nodes)
+end
+
+local function exitScene(message)
+    if message == "restart" then
+        gameEngine.map = generateMap()
+        gameEngine.player = player.newPlayer()
+        resources.restartMusic(mainTheme)
+    end
+    gameEngine.fsm:setState(gameEngine.mapState)
+end
+
+local function enterMenu()
+    gameEngine.fsm:setState(gameEngine.menuState)
 end
 
 local function scrollSky(dt)

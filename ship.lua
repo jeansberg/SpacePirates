@@ -83,7 +83,7 @@ function Ship:attack(target, weapon, useAmmo)
     if weapon == "standard" then
         resources.playSound(laserShot)
         if miss then
-            return
+            return false
         end
         if getCrit(self.crit) then
             multiplier = 2
@@ -101,7 +101,7 @@ function Ship:attack(target, weapon, useAmmo)
         end
 
         if miss then
-            return
+            return false
         end
         if getCrit(self.crit) then
             multiplier = 2
@@ -115,7 +115,7 @@ function Ship:attack(target, weapon, useAmmo)
     elseif weapon == "pierce" then
         resources.playSound(laserShot)
         if miss then
-            return
+            return false
         end
 
         if useAmmo then
@@ -126,7 +126,7 @@ function Ship:attack(target, weapon, useAmmo)
     elseif weapon == "crit" then
         resources.playSound(critCannon)
         if miss then
-            return
+            return false
         end
 
         if useAmmo then
@@ -141,9 +141,22 @@ function Ship:attack(target, weapon, useAmmo)
             target:takeDamage(6 * multiplier, target.armor)
         end
     end
+
+    return true
 end
 
 function ship.getRandomGun(weapons)
+    roll = math.random(1, 3)
+    if roll == 1 then
+        weapons["debuff"] = true
+    elseif roll == 2 then
+        weapons["crit"] = true
+    elseif roll == 2 then
+        weapons["pierce"] = true
+    end
+end
+
+function ship.getRandomGunMaybe(weapons)
     local roll = math.random(0, 1)
     if roll == 0 then
         return

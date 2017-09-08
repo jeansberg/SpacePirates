@@ -43,6 +43,8 @@ resources.images.armorIcon = love.graphics.newImage(imagePath .. "armorIcon.png"
 resources.images.critCannonIcon = love.graphics.newImage(imagePath .. "critCannonIcon.png")
 resources.images.debuffCannonIcon = love.graphics.newImage(imagePath .. "debuffCannonIcon.png")
 resources.images.pierceCannonIcon = love.graphics.newImage(imagePath .. "pierceCannonIcon.png")
+resources.images.greenLaser = love.graphics.newImage(imagePath .. "greenLaser.png")
+resources.images.redLaser = love.graphics.newImage(imagePath .. "redLaser.png")
 
 resources.sounds = {}
 resources.sounds.lowHealth = love.audio.newSource(soundPath .. "Low Health Alarm.mp3", "static")
@@ -61,6 +63,9 @@ resources.sounds.debuffAttack = love.audio.newSource(soundPath .. "Debuff Attack
 resources.sounds.critCannon = love.audio.newSource(soundPath .. "Crit Cannon.mp3", "static")
 resources.sounds.alarm = love.audio.newSource(soundPath .. "Low Health Alarm.mp3", "static")
 resources.sounds.dodge = love.audio.newSource(soundPath .. "Dodge.mp3", "static")
+resources.sounds.repair = love.audio.newSource(soundPath .. "Repair.mp3", "static")
+resources.sounds.reload = love.audio.newSource(soundPath .. "Reload.mp3", "static")
+resources.sounds.purchase = love.audio.newSource(soundPath .. "Purchase Sound.mp3", "static")
 
 resources.music = {}
 resources.music.cityTheme = love.audio.newSource(musicPath .. "City.mp3", "stream")

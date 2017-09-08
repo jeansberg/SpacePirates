@@ -10,7 +10,7 @@ utility.rect = function(xPos, yPos, width, height)
 end
 
 local Button = {}
-function Button:new(xPos, yPos, text, visible, enabled, action, font)
+function Button:new(xPos, yPos, text, visible, enabled, action, font, sound)
     local o = {
         xPos = xPos,
         yPos = yPos,
@@ -18,7 +18,7 @@ function Button:new(xPos, yPos, text, visible, enabled, action, font)
         visible = visible,
         enabled = enabled,
         execute = function()
-            resources.playSound(menuClick)
+            resources.playSound(sound or menuClick)
             action()
         end,
         font = font or "largeFont"
@@ -66,8 +66,8 @@ end
 
 utility.UI = {}
 
-function utility.UI.newButton(xPos, yPos, text, visible, enabled, action, font)
-    return Button:new(xPos, yPos, text, visible, enabled, action, font)
+function utility.UI.newButton(xPos, yPos, text, visible, enabled, action, font, sound)
+    return Button:new(xPos, yPos, text, visible, enabled, action, font, sound)
 end
 
 function utility.UI.updateButtons(buttons)

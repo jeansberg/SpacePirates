@@ -7,29 +7,13 @@ local dodge = 0.15
 local armor = 1
 local hp = 45
 
-local function getRandomGun(weapons)
-    local roll = math.random(0, 1)
-    if roll == 0 then
-        return
-    else
-        roll = math.random(1, 3)
-        if roll == 1 then
-            weapons["debuff"] = true
-        elseif roll == 2 then
-            weapons["crit"] = true
-        elseif roll == 2 then
-            weapons["pierce"] = true
-        end
-    end
-end
-
 local HighLevelPirate = {}
 
 function HighLevelPirate:new()
     print("New HighLevelPirate\n")
     local numAmmo = math.random(1, 2)
     local weapons = {}
-    getRandomGun(weapons)
+    ship.getRandomGun(weapons)
 
     local o = ship.newShip(dodge, crit, armor, hp, numAmmo, weapons)
     o.shipType = "highLevelPirate"

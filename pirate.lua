@@ -22,7 +22,7 @@ function Pirate:new()
     local armor = oneOrNone()
     local numAmmo = oneOrNone()
     local weapons = {}
-    ship.getRandomGun(weapons)
+    ship.getRandomGunMaybe(weapons)
 
     local o = ship.newShip(dodge, crit, armor, hp, numAmmo, weapons)
     o.shipType = "pirate"
