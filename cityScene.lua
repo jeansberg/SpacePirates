@@ -101,7 +101,7 @@ end
 local function drawDescription()
     local text
     local drawFunction = function()
-        love.graphics.printf(text, 150, 100, 400)
+        love.graphics.printf(text, 150, 100, 500)
     end
 
     for i = 1, table.getn(cityScene.icons) do
@@ -176,7 +176,7 @@ function cityScene.initIcons()
             function()
                 purchase(cityScene.node, "repair")
             end,
-            "Restore 20 HP to your ship.\nCost: 10.",
+            "Repair\nRestore 20 HP to your ship.\nCost: 10.",
             repair
         ),
         utility.UI.newIcon(
@@ -188,7 +188,7 @@ function cityScene.initIcons()
             function()
                 purchase(cityScene.node, "ammo")
             end,
-            "Lets you perform an upgraded attack.\nCost: 10.",
+            "Special ammo\nLets you perform an upgraded attack.\nCost: 10.",
             reload
         ),
         utility.UI.newIcon(
@@ -200,7 +200,7 @@ function cityScene.initIcons()
             function()
                 purchase(cityScene.node, "dodge")
             end,
-            "Increases your ship's dodge chance by 10%.\nCost: 30.",
+            "Dodge upgrade\nIncreases your ship's dodge chance by 10%.\nCost: 30.",
             purchaseSound
         ),
         utility.UI.newIcon(
@@ -212,7 +212,7 @@ function cityScene.initIcons()
             function()
                 purchase(cityScene.node, "crit")
             end,
-            "Increases your ship's critical hit chance by 10%.\nCost: 30.",
+            "Crit upgrade\nIncreases your ship's critical hit chance by 10%.\nCost: 30.",
             purchaseSound
         ),
         utility.UI.newIcon(
@@ -224,7 +224,7 @@ function cityScene.initIcons()
             function()
                 purchase(cityScene.node, "armor")
             end,
-            "Adds 1 point of armor to your ship.\nCost: 30.",
+            "Armor\nAdds 1 point of armor to your ship.\nCost: 30.",
             purchaseSound
         ),
         utility.UI.newIcon(
@@ -236,7 +236,7 @@ function cityScene.initIcons()
             function()
                 purchase(cityScene.node, "critCannon")
             end,
-            "Does 6 damage and has +20% chance to critically strike.\nCost: 50.",
+            "Crit Cannon\nDoes 6 damage and has +20% chance to critically strike.\nCost: 50.",
             purchaseSound
         ),
         utility.UI.newIcon(
@@ -248,7 +248,7 @@ function cityScene.initIcons()
             function()
                 purchase(cityScene.node, "debuffCannon")
             end,
-            "Does 4 damage and increases the user's dodge chance by +10%.\nCost: 50.",
+            "Blinding Cannon\nDoes 4 damage and increases the user's dodge chance by +10%.\nCost: 50.",
             purchaseSound
         ),
         utility.UI.newIcon(
@@ -260,7 +260,7 @@ function cityScene.initIcons()
             function()
                 purchase(cityScene.node, "pierceCannon")
             end,
-            "Does 8 damage and ignores enemy armor. Cannot critically strike.\nCost: 50.",
+            "Armor Piercing Cannon\nDoes 8 damage and ignores enemy armor. Cannot critically strike.\nCost: 50.",
             purchaseSound
         )
     }

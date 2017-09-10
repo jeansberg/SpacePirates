@@ -420,7 +420,14 @@ combatScene.enemySurrender = stateMachine.newState()
 function combatScene.enemySurrender:enter()
     print("Enemy surrender...\n")
     combatScene.buttons[1].visible = true
-    combatScene.loot = lootSystem.getLoot(combatScene.player, combatScene.enemy, "surrender")
+
+    combatScene.loot =
+        lootSystem.getLoot(
+        combatScene.player,
+        combatScene.enemy,
+        "surrender",
+        combatScene.extraLoot
+    )
 end
 
 function combatScene.enemySurrender:draw()
@@ -443,7 +450,8 @@ function combatScene.enemyDeath:enter()
     else
         combatScene.buttons[1].visible = true
     end
-    combatScene.loot = lootSystem.getLoot(combatScene.player, combatScene.enemy, "death")
+    combatScene.loot =
+        lootSystem.getLoot(combatScene.player, combatScene.enemy, "death", combatScene.extraLoot)
 end
 
 function combatScene.enemyDeath:draw()
@@ -612,7 +620,7 @@ function combatScene.initIcons()
             function()
                 purchase(combatScene, "repair")
             end,
-            "Restore 20 HP to your ship.\nCost: 10.",
+            "Repair\nRestore 20 HP to your ship.\nCost: 10.",
             repair
         ),
         utility.UI.newIcon(
@@ -624,7 +632,7 @@ function combatScene.initIcons()
             function()
                 purchase(combatScene, "ammo")
             end,
-            "Lets you perform an upgraded attack.\nCost: 10.",
+            "Special ammo\nLets you perform an upgraded attack.\nCost: 10.",
             reload
         ),
         utility.UI.newIcon(
@@ -636,7 +644,7 @@ function combatScene.initIcons()
             function()
                 purchase(combatScene, "dodge")
             end,
-            "Increases your ship's dodge chance by 10%.\nCost: 30.",
+            "Dodge upgrade\nIncreases your ship's dodge chance by 10%.\nCost: 30.",
             purchaseSound
         ),
         utility.UI.newIcon(
@@ -648,7 +656,7 @@ function combatScene.initIcons()
             function()
                 purchase(combatScene, "crit")
             end,
-            "Increases your ship's critical hit chance by 10%.\nCost: 30.",
+            "Crit upgrade\nIncreases your ship's critical hit chance by 10%.\nCost: 30.",
             purchaseSound
         ),
         utility.UI.newIcon(
@@ -660,7 +668,7 @@ function combatScene.initIcons()
             function()
                 purchase(combatScene, "armor")
             end,
-            "Adds 1 point of armor to your ship.\nCost: 30.",
+            "Armor\nAdds 1 point of armor to your ship.\nCost: 30.",
             purchaseSound
         ),
         utility.UI.newIcon(
@@ -672,7 +680,7 @@ function combatScene.initIcons()
             function()
                 purchase(combatScene, "critCannon")
             end,
-            "Does 6 damage and has +20% chance to critically strike.\nCost: 50.",
+            "Crit Cannon\nDoes 6 damage and has +20% chance to critically strike.\nCost: 50.",
             purchaseSound
         ),
         utility.UI.newIcon(
@@ -684,7 +692,7 @@ function combatScene.initIcons()
             function()
                 purchase(combatScene, "debuffCannon")
             end,
-            "Does 4 damage and increases the user's dodge chance by +10%.\nCost: 50.",
+            "Blinding Cannon\nDoes 4 damage and increases the user's dodge chance by +10%.\nCost: 50.",
             purchaseSound
         ),
         utility.UI.newIcon(
@@ -696,7 +704,7 @@ function combatScene.initIcons()
             function()
                 purchase(combatScene, "pierceCannon")
             end,
-            "Does 8 damage and ignores enemy armor. Cannot critically strike.\nCost: 50.",
+            "Armor Piercing Cannon\nDoes 8 damage and ignores enemy armor. Cannot critically strike.\nCost: 50.",
             purchaseSound
         )
     }
@@ -722,7 +730,7 @@ end
 local function drawDescription()
     local text
     local drawFunction = function()
-        love.graphics.printf(text, 150, 100, 400)
+        love.graphics.printf(text, 150, 100, 500)
     end
 
     for i = 1, table.getn(combatScene.icons) do
@@ -829,8 +837,9 @@ end
 ]]
 local CombatScene = {buttons = combatScene.buttons}
 
-function CombatScene:new(player, enemy)
+function CombatScene:new(player, enemy, extraLoot)
     local o = {}
+    combatScene.extraLoot = extraLoot
     combatScene.player = player
     combatScene.enemy = enemy
     enableWeapons(player)
@@ -868,7 +877,7 @@ local function drawStats(player, enemy)
     offset = 10
     resources.printWithFont("tinyFont", drawFunction)
     offset = offset + 50
-    text = asPercent(player.dodge)
+    text = asPercent(player:getDodge())
     resources.printWithFont("tinyFont", drawFunction)
     offset = offset + 65
     text = asPercent(player.crit)
@@ -880,7 +889,7 @@ local function drawStats(player, enemy)
     offset = offset + 70
     resources.printWithFont("tinyFont", drawFunction)
     offset = offset + 50
-    text = asPercent(enemy.dodge)
+    text = asPercent(enemy:getDodge())
     resources.printWithFont("tinyFont", drawFunction)
     offset = offset + 65
     text = asPercent(enemy.crit)
@@ -994,8 +1003,8 @@ function CombatScene:update(dt)
     end
 end
 
-function combatScene.newCombatScene(player, enemy)
-    local scene = CombatScene:new(player, enemy)
+function combatScene.newCombatScene(player, enemy, extraLoot)
+    local scene = CombatScene:new(player, enemy, extraLoot)
     combatScene.fsm:setState(combatScene.initialState)
     return scene
 end

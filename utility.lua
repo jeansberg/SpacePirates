@@ -74,7 +74,7 @@ end
 function utility.UI.updateButtons(buttons)
     for i = 1, table.getn(buttons) do
         local button = buttons[i]
-        if input.mouseOver(button:getRect()) then
+        if input.mouseOver(button:getRect()) and button.visible then
             button.active = true
             if input.getLeftClick() then
                 button.execute()

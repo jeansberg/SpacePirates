@@ -2,6 +2,7 @@ local gameMap = require("gameMap")
 local mapData = require("mapData")
 local combatScene = require("combatScene")
 local cityScene = require("cityScene")
+local textScene = require("textScene")
 local input = require "input"
 local utility = require("utility")
 local resources = require("resources")
@@ -163,7 +164,7 @@ local function randomizeNodes(nodes)
     stockStoreInventory(nodes)
 end
 
-local function enterCombat(enemyType)
+local function enterCombat(enemyType, extraLoot)
     gameEngine.fsm:setState(gameEngine.combatState)
 
     local enemy = {}
@@ -179,12 +180,17 @@ local function enterCombat(enemyType)
     elseif enemyType == "boss" then
         enemy = boss.newBoss()
     end
-    gameEngine.combatScene = combatScene.newCombatScene(gameEngine.player, enemy)
+    gameEngine.combatScene = combatScene.newCombatScene(gameEngine.player, enemy, extraLoot)
 end
 
 local function enterCity(node)
     gameEngine.fsm:setState(gameEngine.cityState)
     gameEngine.cityScene = cityScene.newCityScene(node, gameEngine.player)
+end
+
+local function enterTextScene(type)
+    gameEngine.fsm:setState(gameEngine.textState)
+    gameEngine.textScene = textScene.newEncounter(type, gameEngine.player)
 end
 
 local function generateMap()
@@ -431,14 +437,25 @@ function gameEngine.cityState:draw()
     gameEngine.cityScene:draw()
 end
 
+gameEngine.textState = stateMachine.newState()
+
+function gameEngine.textState:update()
+    gameEngine.textScene:update(dt)
+end
+
+function gameEngine.textState:draw()
+    gameEngine.textScene:draw()
+end
+
 --[[
     Module interface.
 ]]
 function gameEngine.init()
     math.randomseed(os.time())
-    gameMap.init(enterCombat, enterCity, enterMenu)
+    gameMap.init(enterCombat, enterCity, enterMenu, enterTextScene)
     combatScene.init(exitScene)
     cityScene.init(exitScene)
+    textScene.init(exitScene, enterCombat)
 
     gameEngine.fsm = stateMachine.newStateMachine()
     gameEngine.fsm:setState(gameEngine.menuState)

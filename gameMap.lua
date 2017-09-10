@@ -9,10 +9,11 @@ local warpDrive = resources.sounds.warpDrive
     Exposes functions for creating map nodes and game maps. 
 ]]
 local gameMap = {}
-function gameMap.init(enterCombat, enterCity, enterMenu)
+function gameMap.init(enterCombat, enterCity, enterMenu, enterTextScene)
     gameMap.enterCombat = enterCombat
     gameMap.enterCity = enterCity
     gameMap.enterMenu = enterMenu
+    gameMap.enterTextScene = enterTextScene
 end
 
 --[[
@@ -135,6 +136,10 @@ local function enterScene(node)
         gameMap.enterCombat("boss")
     elseif type == "city" then
         gameMap.enterCity(node)
+    elseif type == "decision" then
+        gameMap.enterTextScene("normal")
+    elseif type == "dangerousDecision" then
+        gameMap.enterTextScene("dangerous")
     end
 end
 
