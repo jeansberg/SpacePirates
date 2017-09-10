@@ -20,6 +20,7 @@ local titleTheme = resources.music.titleTheme
 local battleTheme = resources.music.battleTheme
 local mainTheme = resources.music.mainTheme
 local cityTheme = resources.music.cityTheme
+local credits = resources.music.credits
 local warp = resources.sounds.warpDrive
 
 --[[
@@ -315,15 +316,23 @@ gameEngine.menuState.Buttons = {
             gameEngine.player = player.newPlayer()
             resources.restartMusic(mainTheme)
             gameEngine.fsm:setState(gameEngine.mapState)
+            setOptionVisible(gameEngine.menuState.Buttons[1], true)
         end
     ),
     utility.UI.newButton(
         500,
         340,
-        "Options",
+        "Credits",
         true,
         true,
         function()
+            gameEngine.menuState.Buttons[1].visible = false
+            gameEngine.menuState.Buttons[2].visible = false
+            gameEngine.menuState.Buttons[3].visible = false
+            gameEngine.menuState.Buttons[4].visible = false
+            gameEngine.menuState.Buttons[5].visible = true
+            resources.playMusic(credits)
+            gameEngine.credits = true
         end
     ),
     utility.UI.newButton(
@@ -334,6 +343,22 @@ gameEngine.menuState.Buttons = {
         true,
         function()
             love.event.quit()
+        end
+    ),
+    utility.UI.newButton(
+        500,
+        380,
+        "Back",
+        false,
+        true,
+        function()
+            gameEngine.menuState.Buttons[1].visible = gameEngine.running
+            gameEngine.menuState.Buttons[2].visible = true
+            gameEngine.menuState.Buttons[3].visible = true
+            gameEngine.menuState.Buttons[4].visible = true
+            gameEngine.menuState.Buttons[5].visible = false
+            resources.playMusic(mainTheme)
+            gameEngine.credits = false
         end
     )
 }
@@ -348,10 +373,6 @@ end
 
 function gameEngine.menuState:update(dt)
     gameEngine.menuState.skyPosition = scrollSky(dt)
-
-    if gameEngine.running then
-        setOptionVisible(gameEngine.menuState.Buttons[1], true)
-    end
 
     local menuInput = input.getMenuInput()
     if menuInput == "up" then
@@ -389,6 +410,34 @@ function gameEngine.menuState:draw()
     drawSky()
 
     drawMenu(gameEngine.menuState.options)
+
+    if gameEngine.credits then
+        resources.printWithFont(
+            "largeFont",
+            function()
+                love.graphics.print("Design:\nDiego Ramos", 50, 100)
+            end
+        )
+        resources.printWithFont(
+            "largeFont",
+            function()
+                love.graphics.print("Code:\nJens Genberg", 850, 100)
+            end
+        )
+        resources.printWithFont(
+            "largeFont",
+            function()
+                love.graphics.print("Art:\nGillian Sneve", 50, 300)
+            end
+        )
+        resources.printWithFont(
+            "largeFont",
+            function()
+                love.graphics.print("Sound:\nCoatedpolecat", 850, 300)
+            end
+        )
+    else
+    end
 end
 
 gameEngine.mapState = stateMachine.newState()
