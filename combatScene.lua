@@ -174,6 +174,16 @@ combatScene.buttons = {
 
 combatScene.fsm = stateMachine.newStateMachine()
 
+combatScene.initialState = stateMachine.newState()
+
+function combatScene.initialState:enter()
+    combatScene.newTurnState.firstTurn = true
+    combatScene.fsm:setState(combatScene.newTurnState)
+end
+
+function combatScene.initialState:draw()
+end
+
 combatScene.newTurnState = stateMachine.newState()
 function combatScene.newTurnState:enter()
     print("New turn...\n")
@@ -186,11 +196,37 @@ function combatScene.newTurnState:enter()
         combatScene.buttons[3].visible = false
         combatScene.buttons[9].visible = true
     end
+
+    combatScene.buttons[1].visible = false
 end
 
 function combatScene.newTurnState:exit()
     combatScene.buttons[2].visible = false
     combatScene.buttons[3].visible = false
+    combatScene.newTurnState.firstTurn = false
+end
+
+function combatScene.newTurnState.draw()
+    if combatScene.newTurnState.firstTurn then
+        local introText
+        if combatScene.enemy.shipType == "keyStarPirate" then
+            introText =
+                "You have discovered the key to your final destination, but it appears to be guarded by a powerful pirate. Are you ready for this fight?"
+        elseif combatScene.enemy.shipType == "boss" then
+            introText =
+                "You have arrived at your final destination. Are you ready to fight the Pirate King?"
+        elseif combatScene.enemy.shipType == "merchantShip" then
+            introText = "You have encountered a merchant ship."
+        else
+            introText = "You have encountered a pirate ship."
+        end
+
+        local printFunction = function()
+            love.graphics.printf(introText, 660, 460, 340)
+        end
+
+        resources.printWithFont("smallFont", printFunction)
+    end
 end
 
 combatScene.playerTurn = stateMachine.newState()
@@ -274,7 +310,7 @@ local function drawLoot(loot)
     resources.printWithFont(
         "smallFont",
         function()
-            love.graphics.print("You receive:", 660, 500)
+            love.graphics.print("You receive:", 660, 600)
         end
     )
 
@@ -287,7 +323,7 @@ local function drawLoot(loot)
                 love.graphics.print(
                     tostring(lootItem.amount) .. " " .. lootItem.text,
                     660,
-                    500 + i * 20
+                    600 + i * 20
                 )
             end
         )
@@ -316,15 +352,30 @@ combatScene.enemyDeath = stateMachine.newState()
 function combatScene.enemyDeath:enter()
     print("Enemy death...\n")
 
-    combatScene.buttons[1].visible = true
+    if combatScene.enemy.shipType == "boss" then
+        combatScene.buttons[9].visible = true
+    else
+        combatScene.buttons[1].visible = true
+    end
     combatScene.loot = lootSystem.getLoot(combatScene.player, combatScene.enemy, "death")
 end
 
 function combatScene.enemyDeath:draw()
+    local endText
+    if combatScene.enemy.shipType == "keyStarPirate" then
+        endText =
+            "You have defeated the guardian of the key! Now you can access your final destination."
+    elseif combatScene.enemy.shipType == "boss" then
+        endText =
+            "You have defeated the Pirate King and assumed his role as King of the Stars! Game over."
+    else
+        endText = "Your enemy has been destroyed!"
+    end
+
     resources.printWithFont(
         "smallFont",
         function()
-            love.graphics.printf("Your enemy has been destroyed!", 660, 460, 300)
+            love.graphics.printf(endText, 660, 460, 320)
         end
     )
 
@@ -522,7 +573,7 @@ function CombatScene:draw()
     end
 
     love.graphics.draw(portraitImage, 1015, 440)
-    love.graphics.draw(shipImage, 755, -10)
+    love.graphics.draw(shipImage, 755, -15)
 end
 
 function CombatScene:update(dt)
@@ -548,7 +599,7 @@ end
 
 function combatScene.newCombatScene(player, enemy)
     local scene = CombatScene:new(player, enemy)
-    combatScene.fsm:setState(combatScene.newTurnState)
+    combatScene.fsm:setState(combatScene.initialState)
     return scene
 end
 
