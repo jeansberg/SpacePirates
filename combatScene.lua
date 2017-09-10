@@ -8,6 +8,7 @@ local lootSystem = require("loot")
 local particles = require("particles")
 
 local combatBackground = resources.images.combatScene
+local cityBackground = resources.images.cityScene
 local bossShip = resources.images.bossShip
 local merchantShip = resources.images.merchantShip
 local pirateShip = resources.images.pirateShip
@@ -15,11 +16,22 @@ local bossportrait = resources.images.bossPortrait
 local merchantportrait = resources.images.merchantPortrait
 local pirateportrait = resources.images.piratePortrait
 
+local repairIcon = resources.images.repairIcon
+local ammoIcon = resources.images.ammoIcon
+local dodgeIcon = resources.images.dodgeIcon
+local critIcon = resources.images.critIcon
+local armorIcon = resources.images.armorIcon
+local critCannonIcon = resources.images.critCannonIcon
+local debuffCannonIcon = resources.images.debuffCannonIcon
+local pierceCannonIcon = resources.images.pierceCannonIcon
+
 local greenLaser = resources.images.greenLaser
 local redLaser = resources.images.redLaser
 local health = resources.images.health
 
 local reload = resources.sounds.reload
+local repair = resources.sounds.repair
+local purchaseSound = resources.sounds.purchase
 
 --[[
     Combat scene module.
@@ -39,7 +51,11 @@ combatScene.buttons = {
         false,
         true,
         function()
-            combatScene.exitScene()
+            if combatScene.enemy.shipType == "keyStarPirate" then
+                combatScene.exitScene("foundBoss")
+            else
+                combatScene.exitScene()
+            end
         end,
         "smallFont"
     ),
@@ -68,7 +84,7 @@ combatScene.buttons = {
                 table.insert(combatScene.explosions, explosion)
                 explosion:setPosition(325, 245)
                 explosion:emit(200)
-                combatScene.timeOutState.nextState = combatScene.newTurnState
+                combatScene.timeOutState.nextState = combatScene.playerDeath
                 combatScene.fsm:setState(combatScene.timeOutState)
             else
                 combatScene.exitScene("fledCombat")
@@ -160,13 +176,35 @@ combatScene.buttons = {
         reload
     ),
     utility.UI.newButton(
-        550,
-        570,
+        320,
+        460,
         "Restart",
         false,
         true,
         function()
             combatScene.exitScene("restart")
+        end,
+        "smallFont"
+    ),
+    utility.UI.newButton(
+        320,
+        515,
+        "Trade",
+        false,
+        true,
+        function()
+            combatScene.fsm:setState(combatScene.tradingState)
+        end,
+        "smallFont"
+    ),
+    utility.UI.newButton(
+        40,
+        700,
+        "Exit",
+        true,
+        true,
+        function()
+            combatScene.exitScene()
         end,
         "smallFont"
     )
@@ -176,7 +214,48 @@ combatScene.fsm = stateMachine.newStateMachine()
 
 combatScene.initialState = stateMachine.newState()
 
+local function getUniqueGun(weapons)
+    if math.random(0, 1) == 0 then
+        return
+    end
+
+    local specialWeapons = {}
+    table.insert(specialWeapons, "debuff")
+    table.insert(specialWeapons, "crit")
+    table.insert(specialWeapons, "pierce")
+
+    local roll = math.random(1, table.getn(specialWeapons))
+    local receivedWeapon = specialWeapons[roll]
+    weapons[receivedWeapon] = true
+end
+
+local function getUniqueUpgrade(upgrades)
+    local possibleUpgrades = {}
+    table.insert(possibleUpgrades, "dodge")
+    table.insert(possibleUpgrades, "crit")
+    table.insert(possibleUpgrades, "armor")
+
+    local roll = math.random(1, table.getn(possibleUpgrades))
+    local receivedUpgrade = possibleUpgrades[roll]
+    upgrades[receivedUpgrade] = true
+end
+
+local function generateInventory()
+    combatScene.weapons = {}
+    combatScene.upgrades = {}
+    getUniqueGun(combatScene.weapons)
+    getUniqueUpgrade(combatScene.upgrades)
+end
+
+local function clearInventory()
+    combatScene.weapons = {}
+    combatScene.upgrades = {}
+end
+
 function combatScene.initialState:enter()
+    print("enter initial state\n")
+    combatScene.buttons[11].visible = false
+    combatScene.buttons[1].visible = false
     combatScene.newTurnState.firstTurn = true
     combatScene.fsm:setState(combatScene.newTurnState)
 end
@@ -196,8 +275,6 @@ function combatScene.newTurnState:enter()
         combatScene.buttons[3].visible = false
         combatScene.buttons[9].visible = true
     end
-
-    combatScene.buttons[1].visible = false
 end
 
 function combatScene.newTurnState:exit()
@@ -217,6 +294,8 @@ function combatScene.newTurnState.draw()
                 "You have arrived at your final destination. Are you ready to fight the Pirate King?"
         elseif combatScene.enemy.shipType == "merchantShip" then
             introText = "You have encountered a merchant ship."
+            combatScene.buttons[3].visible = false
+            combatScene.buttons[10].visible = true
         else
             introText = "You have encountered a pirate ship."
         end
@@ -239,6 +318,8 @@ function combatScene.playerTurn:enter()
     combatScene.buttons[6].visible = true
     combatScene.buttons[7].visible = true
     combatScene.buttons[8].visible = true
+
+    combatScene.buttons[10].visible = false
 end
 
 function combatScene.playerTurn:update(dt)
@@ -287,7 +368,9 @@ function combatScene.enemyTurn:enter()
             combatScene.projectiles,
             {xPos = 722, yPos = 244, direction = "left", image = redLaser, hit = hit}
         )
-        if combatScene.enemy.shipType == "keyStarPirate" or combatScene.enemy.shipType == "boss" then
+        if combatScene.player.hp < 1 then
+            combatScene.timeOutState.nextState = combatScene.playerDeath
+        elseif combatScene.enemy.shipType == "keyStarPirate" or combatScene.enemy.shipType == "boss" then
             combatScene.timeOutState.nextState = combatScene.playerTurn
         else
             combatScene.timeOutState.nextState = combatScene.newTurnState
@@ -306,6 +389,9 @@ function combatScene.enemyTurn:exit()
 end
 
 local function drawLoot(loot)
+    if table.getn(loot) < 1 then
+        return
+    end
     local lootIndex = 0
     resources.printWithFont(
         "smallFont",
@@ -380,6 +466,316 @@ function combatScene.enemyDeath:draw()
     )
 
     drawLoot(combatScene.loot)
+end
+
+combatScene.playerDeath = stateMachine.newState()
+function combatScene.playerDeath:enter()
+    print("Player death...\n")
+
+    combatScene.buttons[9].visible = true
+end
+
+function combatScene.playerDeath.draw()
+    resources.printWithFont(
+        "smallFont",
+        function()
+            love.graphics.printf("You have been destroyed!", 660, 460, 320)
+        end
+    )
+end
+
+combatScene.tradingState = stateMachine.newState()
+
+local iconStart = 44
+local iconOffset = 150
+
+local function showAvailable(weapons, upgrades)
+    if upgrades["dodge"] then
+        combatScene.icons[3].visible = true
+    end
+    if upgrades["crit"] then
+        combatScene.icons[4].visible = true
+    end
+    if upgrades["armor"] then
+        combatScene.icons[5].visible = true
+    end
+
+    if weapons["crit"] then
+        combatScene.icons[6].visible = true
+    end
+    if weapons["debuff"] then
+        combatScene.icons[7].visible = true
+    end
+    if weapons["pierce"] then
+        combatScene.icons[8].visible = true
+    end
+end
+
+local function updateAvailable(node)
+    if not node.upgrades["dodge"] then
+        combatScene.icons[3].visible = false
+    end
+    if not node.upgrades["crit"] then
+        combatScene.icons[4].visible = false
+    end
+    if not node.upgrades["armor"] then
+        combatScene.icons[5].visible = false
+    end
+
+    if not node.weapons["crit"] then
+        combatScene.icons[6].visible = false
+    end
+    if not node.weapons["debuff"] then
+        combatScene.icons[7].visible = false
+    end
+    if not node.weapons["pierce"] then
+        combatScene.icons[8].visible = false
+    end
+end
+
+local function updateAffordable()
+    if combatScene.player.money < 50 or combatScene.player.weapons["crit"] then
+        combatScene.icons[6].enabled = false
+    end
+    if combatScene.player.money < 50 or combatScene.player.weapons["debuff"] then
+        combatScene.icons[7].enabled = false
+    end
+    if combatScene.player.money < 50 or combatScene.player.weapons["pierce"] then
+        combatScene.icons[8].enabled = false
+    end
+
+    if combatScene.player.money < 20 or combatScene.player.dodge > 0.9 then
+        combatScene.icons[3].enabled = false
+    end
+    if combatScene.player.money < 20 or combatScene.player.crit > 0.9 then
+        combatScene.icons[4].enabled = false
+    end
+    if combatScene.player.money < 20 or combatScene.player.armor > 0.9 then
+        combatScene.icons[5].enabled = false
+    end
+
+    if combatScene.player.money < 10 or combatScene.player.hp > 249 then
+        combatScene.icons[1].enabled = false
+    end
+
+    if combatScene.player.money < 10 then
+        combatScene.icons[2].enabled = false
+    end
+end
+
+local function purchase(node, item)
+    local player = combatScene.player
+    if item == "repair" then
+        player.money = player.money - 10
+        player.hp = math.min(player.hp + 20, 250)
+    elseif item == "ammo" then
+        player.money = player.money - 10
+        player.numAmmo = player.numAmmo + 1
+    elseif item == "dodge" then
+        player.money = player.money - 20
+        player.dodge = math.min(player.dodge + 0.1, 1)
+        node.upgrades["dodge"] = false
+    elseif item == "crit" then
+        player.money = player.money - 20
+        player.crit = math.min(player.crit + 0.1, 1)
+        node.upgrades["crit"] = false
+    elseif item == "armor" then
+        player.money = player.money - 20
+        player.armor = player.armor + 1
+        node.upgrades["armor"] = false
+    elseif item == "debuffCannon" then
+        player.money = player.money - 50
+        player.weapons["debuff"] = true
+        node.weapons["debuff"] = false
+    elseif item == "critCannon" then
+        player.money = player.money - 50
+        player.weapons["crit"] = true
+        node.weapons["crit"] = false
+    elseif item == "pierceCannon" then
+        player.money = player.money - 50
+        player.weapons["pierce"] = true
+        node.weapons["pierce"] = false
+    end
+
+    updateAffordable()
+    updateAvailable(node)
+end
+
+function combatScene.initIcons()
+    combatScene.icons = {
+        utility.UI.newIcon(
+            iconStart,
+            440,
+            repairIcon,
+            true,
+            true,
+            function()
+                purchase(combatScene, "repair")
+            end,
+            "Restore 20 HP to your ship.\nCost: 10.",
+            repair
+        ),
+        utility.UI.newIcon(
+            iconStart + iconOffset * 1,
+            440,
+            ammoIcon,
+            true,
+            true,
+            function()
+                purchase(combatScene, "ammo")
+            end,
+            "Lets you perform an upgraded attack.\nCost: 10.",
+            reload
+        ),
+        utility.UI.newIcon(
+            iconStart + iconOffset * 2,
+            440,
+            dodgeIcon,
+            false,
+            true,
+            function()
+                purchase(combatScene, "dodge")
+            end,
+            "Increases your ship's dodge chance by 10%.\nCost: 30.",
+            purchaseSound
+        ),
+        utility.UI.newIcon(
+            iconStart + iconOffset * 3,
+            440,
+            critIcon,
+            false,
+            true,
+            function()
+                purchase(combatScene, "crit")
+            end,
+            "Increases your ship's critical hit chance by 10%.\nCost: 30.",
+            purchaseSound
+        ),
+        utility.UI.newIcon(
+            iconStart + iconOffset * 4,
+            440,
+            armorIcon,
+            false,
+            true,
+            function()
+                purchase(combatScene, "armor")
+            end,
+            "Adds 1 point of armor to your ship.\nCost: 30.",
+            purchaseSound
+        ),
+        utility.UI.newIcon(
+            iconStart + iconOffset * 5,
+            440,
+            critCannonIcon,
+            false,
+            true,
+            function()
+                purchase(combatScene, "critCannon")
+            end,
+            "Does 6 damage and has +20% chance to critically strike.\nCost: 50.",
+            purchaseSound
+        ),
+        utility.UI.newIcon(
+            iconStart + iconOffset * 6,
+            440,
+            debuffCannonIcon,
+            false,
+            true,
+            function()
+                purchase(combatScene, "debuffCannon")
+            end,
+            "Does 4 damage and increases the user's dodge chance by +10%.\nCost: 50.",
+            purchaseSound
+        ),
+        utility.UI.newIcon(
+            iconStart + iconOffset * 7,
+            440,
+            pierceCannonIcon,
+            false,
+            true,
+            function()
+                purchase(combatScene, "pierceCannon")
+            end,
+            "Does 8 damage and ignores enemy armor. Cannot critically strike.\nCost: 50.",
+            purchaseSound
+        )
+    }
+end
+
+function combatScene.tradingState:enter()
+    combatScene.buttons[10].visible = false
+    combatScene.buttons[11].visible = true
+    combatScene.initIcons()
+    generateInventory()
+    showAvailable(combatScene.weapons, combatScene.upgrades)
+    updateAffordable()
+end
+
+function combatScene.tradingState:exit()
+    clearInventory()
+end
+
+function combatScene.tradingState:update(dt)
+    utility.UI.updateIcons(combatScene.icons)
+end
+
+local function drawDescription()
+    local text
+    local drawFunction = function()
+        love.graphics.printf(text, 150, 100, 400)
+    end
+
+    for i = 1, table.getn(combatScene.icons) do
+        local icon = combatScene.icons[i]
+        if icon.active then
+            text = icon.description
+            resources.printWithFont("smallFont", drawFunction)
+        end
+    end
+end
+
+function combatScene.tradingState:draw()
+    love.graphics.draw(cityBackground, 0, 0)
+
+    utility.UI.drawIcons(combatScene.icons)
+    resources.printWithFont(
+        "tinyFont",
+        function()
+            love.graphics.print("Money:" .. combatScene.player.money, 150, 350)
+        end
+    )
+    resources.printWithFont(
+        "tinyFont",
+        function()
+            love.graphics.print("Hp:" .. combatScene.player.hp, 150, 330)
+        end
+    )
+    resources.printWithFont(
+        "tinyFont",
+        function()
+            love.graphics.print("Dodge:" .. combatScene.player.dodge, 350, 350)
+        end
+    )
+    resources.printWithFont(
+        "tinyFont",
+        function()
+            love.graphics.print("Crit:" .. combatScene.player.crit, 450, 350)
+        end
+    )
+    resources.printWithFont(
+        "tinyFont",
+        function()
+            love.graphics.print("Armor:" .. combatScene.player.armor, 550, 350)
+        end
+    )
+    resources.printWithFont(
+        "tinyFont",
+        function()
+            love.graphics.print("Ammo:" .. combatScene.player.numAmmo, 350, 330)
+        end
+    )
+
+    drawDescription()
 end
 
 combatScene.timeOutState = stateMachine.newState()
@@ -549,15 +945,8 @@ end
 function CombatScene:draw()
     love.graphics.draw(combatBackground, 0, 0)
 
-    drawProjectile()
-    for _, explosion in ipairs(combatScene.explosions) do
-        love.graphics.draw(explosion, 0, 0)
-    end
     drawHealthBars(combatScene.player, combatScene.enemy)
     drawStats(combatScene.player, combatScene.enemy)
-
-    utility.UI.drawButtons(self.buttons)
-    combatScene.fsm.state:draw()
 
     local portraitImage = {}
     local shipImage = {}
@@ -574,6 +963,14 @@ function CombatScene:draw()
 
     love.graphics.draw(portraitImage, 1015, 440)
     love.graphics.draw(shipImage, 755, -15)
+
+    drawProjectile()
+    for _, explosion in ipairs(combatScene.explosions) do
+        love.graphics.draw(explosion, 0, 0)
+    end
+
+    combatScene.fsm.state:draw()
+    utility.UI.drawButtons(self.buttons)
 end
 
 function CombatScene:update(dt)

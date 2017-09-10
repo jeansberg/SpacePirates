@@ -11,6 +11,7 @@ local pirate = require("pirate")
 local highLevelPirate = require("highLevelPirate")
 local keyStarPirate = require("keyStarPirate")
 local merchantShip = require("merchantShip")
+local boss = require("boss")
 
 local starrySky = resources.images.starrySky
 
@@ -175,6 +176,8 @@ local function enterCombat(enemyType)
         enemy = keyStarPirate.newKeyStarPirate()
     elseif enemyType == "merchantShip" then
         enemy = merchantShip.newMerchantShip()
+    elseif enemyType == "boss" then
+        enemy = boss.newBoss()
     end
     gameEngine.combatScene = combatScene.newCombatScene(gameEngine.player, enemy)
 end
@@ -197,6 +200,8 @@ local function exitScene(message)
         gameEngine.map = generateMap()
         gameEngine.player = player.newPlayer()
         resources.restartMusic(mainTheme)
+    elseif message == "foundBoss" then
+        gameEngine.map:showBoss()
     end
     gameEngine.fsm:setState(gameEngine.mapState)
 end

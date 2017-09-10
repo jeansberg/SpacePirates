@@ -98,6 +98,21 @@ local function updateAffordable()
     end
 end
 
+local function drawDescription()
+    local text
+    local drawFunction = function()
+        love.graphics.printf(text, 150, 100, 400)
+    end
+
+    for i = 1, table.getn(cityScene.icons) do
+        local icon = cityScene.icons[i]
+        if icon.active then
+            text = icon.description
+            resources.printWithFont("smallFont", drawFunction)
+        end
+    end
+end
+
 local function purchase(node, item)
     local player = cityScene.player
     if item == "repair" then
@@ -161,6 +176,7 @@ function cityScene.initIcons()
             function()
                 purchase(cityScene.node, "repair")
             end,
+            "Restore 20 HP to your ship.\nCost: 10.",
             repair
         ),
         utility.UI.newIcon(
@@ -172,6 +188,7 @@ function cityScene.initIcons()
             function()
                 purchase(cityScene.node, "ammo")
             end,
+            "Lets you perform an upgraded attack.\nCost: 10.",
             reload
         ),
         utility.UI.newIcon(
@@ -183,6 +200,7 @@ function cityScene.initIcons()
             function()
                 purchase(cityScene.node, "dodge")
             end,
+            "Increases your ship's dodge chance by 10%.\nCost: 30.",
             purchaseSound
         ),
         utility.UI.newIcon(
@@ -194,6 +212,7 @@ function cityScene.initIcons()
             function()
                 purchase(cityScene.node, "crit")
             end,
+            "Increases your ship's critical hit chance by 10%.\nCost: 30.",
             purchaseSound
         ),
         utility.UI.newIcon(
@@ -205,6 +224,7 @@ function cityScene.initIcons()
             function()
                 purchase(cityScene.node, "armor")
             end,
+            "Adds 1 point of armor to your ship.\nCost: 30.",
             purchaseSound
         ),
         utility.UI.newIcon(
@@ -216,6 +236,7 @@ function cityScene.initIcons()
             function()
                 purchase(cityScene.node, "critCannon")
             end,
+            "Does 6 damage and has +20% chance to critically strike.\nCost: 50.",
             purchaseSound
         ),
         utility.UI.newIcon(
@@ -227,6 +248,7 @@ function cityScene.initIcons()
             function()
                 purchase(cityScene.node, "debuffCannon")
             end,
+            "Does 4 damage and increases the user's dodge chance by +10%.\nCost: 50.",
             purchaseSound
         ),
         utility.UI.newIcon(
@@ -238,6 +260,7 @@ function cityScene.initIcons()
             function()
                 purchase(cityScene.node, "pierceCannon")
             end,
+            "Does 8 damage and ignores enemy armor. Cannot critically strike.\nCost: 50.",
             purchaseSound
         )
     }
@@ -308,14 +331,7 @@ function CityScene:draw()
         end
     )
 
-    for i = 1, table.getn(self.upgrades) do
-        local upgrade = self.upgrades[i]
-        love.graphics.print(upgrade, 100, 100 + i * 20)
-    end
-
-    if table.getn(self.weapons) > 0 then
-        love.graphics.print(self.weapons[1], 100, 200)
-    end
+    drawDescription()
 end
 
 function CityScene:update(dt)

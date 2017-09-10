@@ -42,7 +42,7 @@ function Button:focus()
 end
 
 local Icon = {size = 128}
-function Icon:new(xPos, yPos, image, visible, enabled, action, sound)
+function Icon:new(xPos, yPos, image, visible, enabled, action, description, sound)
     local o = {
         xPos = xPos,
         yPos = yPos,
@@ -53,7 +53,8 @@ function Icon:new(xPos, yPos, image, visible, enabled, action, sound)
             resources.playSound(sound or menuClick)
             action()
         end,
-        font = font or "largeFont"
+        font = font or "largeFont",
+        description = description
     }
     setmetatable(o, self)
     self.__index = self
@@ -79,6 +80,9 @@ function utility.UI.updateButtons(buttons)
                 button.execute()
             end
         else
+            button.active = false
+        end
+        if not button.enabled then
             button.active = false
         end
     end
@@ -130,17 +134,17 @@ function utility.UI.drawButtons(buttons)
     end
 end
 
-function utility.UI.newIcon(xPos, yPos, image, visible, enabled, action, sound)
-    return Icon:new(xPos, yPos, image, visible, enabled, action, sound)
+function utility.UI.newIcon(xPos, yPos, image, visible, enabled, action, description, sound)
+    return Icon:new(xPos, yPos, image, visible, enabled, action, description, sound)
 end
 
 function utility.UI.updateIcons(icons)
     for i = 1, table.getn(icons) do
         local icon = icons[i]
-        if input.mouseOver(icon:getRect()) then
+        if input.mouseOver(icon:getRect()) and icon.visible then
             icon.active = true
             if input.getLeftClick() then
-                if icon.enabled and icon.visible then
+                if icon.enabled then
                     icon.execute()
                 end
             end

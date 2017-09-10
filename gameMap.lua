@@ -24,6 +24,7 @@ local yellowNode = resources.images.yellowNode
 local blueNode = resources.images.blueNode
 local redNode = resources.images.redNode
 local greenNode = resources.images.greenNode
+local darkNode = resources.images.darkNode
 local mermaidShip = resources.images.mermaidShip
 local nodeSize = 32
 local nodeRadius = nodeSize / 2
@@ -84,6 +85,16 @@ function GameMap:moveToNode(node)
     return false
 end
 
+function GameMap:showBoss()
+    local normalStars = {}
+    for i = 1, table.getn(self.nodes) do
+        if self.nodes[i].type == "normal" then
+            table.insert(normalStars, self.nodes[i])
+        end
+    end
+    normalStars[math.random(1, table.getn(normalStars))].type = "boss"
+end
+
 local function getEncounterType(node)
     local roll = math.random(1, 100)
     if node.type == "city" then
@@ -104,6 +115,8 @@ local function getEncounterType(node)
         end
     elseif node.type == "key" then
         return "key"
+    elseif node.type == "boss" then
+        return "boss"
     end
 end
 
@@ -118,6 +131,8 @@ local function enterScene(node)
         gameMap.enterCombat("merchantShip")
     elseif type == "key" then
         gameMap.enterCombat("keyStarPirate")
+    elseif type == "boss" then
+        gameMap.enterCombat("boss")
     elseif type == "city" then
         gameMap.enterCity(node)
     end
@@ -168,6 +183,8 @@ function GameMap:draw()
             love.graphics.draw(blueNode, node.xPos - nodeRadius, node.yPos - nodeRadius)
         elseif node.type == "dangerZone" then
             love.graphics.draw(redNode, node.xPos - nodeRadius, node.yPos - nodeRadius)
+        elseif node.type == "boss" then
+            love.graphics.draw(darkNode, node.xPos - nodeRadius, node.yPos - nodeRadius)
         else
             love.graphics.draw(greenNode, node.xPos - nodeRadius, node.yPos - nodeRadius)
         end
