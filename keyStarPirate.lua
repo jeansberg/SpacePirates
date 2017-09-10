@@ -35,6 +35,7 @@ function KeyStarPirate:new()
 
     local o = ship.newShip(dodge, crit, armor, hp, numAmmo, weapons)
     o.shipType = "keyStarPirate"
+    o.maxHp = hp
     return o
 end
 

@@ -34,6 +34,7 @@ resources.images.yellowNode = love.graphics.newImage(imagePath .. "yellowNode.pn
 resources.images.mermaidShip = love.graphics.newImage(imagePath .. "mermaidShip.png")
 resources.images.combatScene = love.graphics.newImage(imagePath .. "combatScene.png")
 resources.images.cityScene = love.graphics.newImage(imagePath .. "cityScene.png")
+resources.images.textScene = love.graphics.newImage(imagePath .. "textScene.png")
 resources.images.starrySky = love.graphics.newImage(imagePath .. "starrySky.png")
 resources.images.repairIcon = love.graphics.newImage(imagePath .. "repairIcon.png")
 resources.images.ammoIcon = love.graphics.newImage(imagePath .. "ammoIcon.png")
@@ -45,6 +46,16 @@ resources.images.debuffCannonIcon = love.graphics.newImage(imagePath .. "debuffC
 resources.images.pierceCannonIcon = love.graphics.newImage(imagePath .. "pierceCannonIcon.png")
 resources.images.greenLaser = love.graphics.newImage(imagePath .. "greenLaser.png")
 resources.images.redLaser = love.graphics.newImage(imagePath .. "redLaser.png")
+resources.images.bossPortrait = love.graphics.newImage(imagePath .. "portrait - final boss.png")
+resources.images.merchantPortrait =
+    love.graphics.newImage(imagePath .. "portrait - merchant ship.png")
+resources.images.playerPortrait = love.graphics.newImage(imagePath .. "portrait - player.png")
+resources.images.piratePortrait =
+    love.graphics.newImage(imagePath .. "portrait - regular _ key pirate.png")
+resources.images.bossShip = love.graphics.newImage(imagePath .. "bossShip.png")
+resources.images.merchantShip = love.graphics.newImage(imagePath .. "merchantShip.png")
+resources.images.pirateShip = love.graphics.newImage(imagePath .. "pirateShip.png")
+resources.images.health = love.graphics.newImage(imagePath .. "health.png")
 
 resources.sounds = {}
 resources.sounds.lowHealth = love.audio.newSource(soundPath .. "Low Health Alarm.mp3", "static")

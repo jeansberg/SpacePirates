@@ -8,8 +8,16 @@ local lootSystem = require("loot")
 local particles = require("particles")
 
 local combatBackground = resources.images.combatScene
+local bossShip = resources.images.bossShip
+local merchantShip = resources.images.merchantShip
+local pirateShip = resources.images.pirateShip
+local bossportrait = resources.images.bossPortrait
+local merchantportrait = resources.images.merchantPortrait
+local pirateportrait = resources.images.piratePortrait
+
 local greenLaser = resources.images.greenLaser
 local redLaser = resources.images.redLaser
+local health = resources.images.health
 
 local reload = resources.sounds.reload
 
@@ -25,9 +33,9 @@ combatScene.explosions = {}
 
 combatScene.buttons = {
     utility.UI.newButton(
-        40,
-        700,
-        "Exit",
+        320,
+        460,
+        "Leave",
         false,
         true,
         function()
@@ -36,8 +44,8 @@ combatScene.buttons = {
         "smallFont"
     ),
     utility.UI.newButton(
-        450,
-        500,
+        320,
+        460,
         "Fight",
         false,
         true,
@@ -47,8 +55,8 @@ combatScene.buttons = {
         "smallFont"
     ),
     utility.UI.newButton(
-        650,
-        500,
+        320,
+        515,
         "Flee",
         false,
         true,
@@ -69,8 +77,8 @@ combatScene.buttons = {
         "smallFont"
     ),
     utility.UI.newButton(
-        450,
-        500,
+        320,
+        460,
         "Standard",
         false,
         true,
@@ -87,8 +95,8 @@ combatScene.buttons = {
         "smallFont"
     ),
     utility.UI.newButton(
-        650,
-        500,
+        320,
+        515,
         "Blinding",
         false,
         false,
@@ -105,8 +113,8 @@ combatScene.buttons = {
         "smallFont"
     ),
     utility.UI.newButton(
-        450,
-        600,
+        320,
+        625,
         "Critical",
         false,
         false,
@@ -122,8 +130,8 @@ combatScene.buttons = {
         "smallFont"
     ),
     utility.UI.newButton(
-        650,
-        600,
+        320,
+        680,
         "Armor Piercing",
         false,
         false,
@@ -140,8 +148,8 @@ combatScene.buttons = {
         "smallFont"
     ),
     utility.UI.newButton(
-        550,
-        550,
+        320,
+        570,
         "Use Ammo",
         false,
         true,
@@ -153,7 +161,7 @@ combatScene.buttons = {
     ),
     utility.UI.newButton(
         550,
-        550,
+        570,
         "Restart",
         false,
         true,
@@ -266,7 +274,7 @@ local function drawLoot(loot)
     resources.printWithFont(
         "smallFont",
         function()
-            love.graphics.print("You receive:", 400, 520)
+            love.graphics.print("You receive:", 660, 500)
         end
     )
 
@@ -278,8 +286,8 @@ local function drawLoot(loot)
             function()
                 love.graphics.print(
                     tostring(lootItem.amount) .. " " .. lootItem.text,
-                    500,
-                    520 + i * 20
+                    660,
+                    500 + i * 20
                 )
             end
         )
@@ -297,7 +305,7 @@ function combatScene.enemySurrender:draw()
     resources.printWithFont(
         "smallFont",
         function()
-            love.graphics.print("Your enemy has surrendered!", 400, 500)
+            love.graphics.printf("Your enemy has surrendered!", 660, 460, 300)
         end
     )
 
@@ -316,7 +324,7 @@ function combatScene.enemyDeath:draw()
     resources.printWithFont(
         "smallFont",
         function()
-            love.graphics.print("Your enemy has been destroyed!", 400, 500)
+            love.graphics.printf("Your enemy has been destroyed!", 660, 460, 300)
         end
     )
 
@@ -388,28 +396,70 @@ local function asPercent(number)
     return tostring((number * 100)) .. "%"
 end
 
-local function drawPlayerStats(player)
+local function drawHealthBars(player, enemy)
+    love.graphics.draw(health, 432, 8, 0, player.hp / 250, 1)
+    love.graphics.draw(health, 648, 8, 0, enemy.hp / enemy.maxHp, 1)
+end
+
+local function drawStats(player, enemy)
     local text = ""
     local offset = 0
-    local drawFunction = function()
-        love.graphics.print(text, 20, 480 + offset)
+    local drawFunction =
+        function()
+        resources.drawWithColor(
+            0,
+            0,
+            0,
+            255,
+            function()
+                love.graphics.print(text, 414 + offset, 400)
+            end
+        )
     end
-    text = "Health " .. player.hp
+
+    text = player.armor
+    offset = 10
+    resources.printWithFont("tinyFont", drawFunction)
+    offset = offset + 50
+    text = asPercent(player.dodge)
+    resources.printWithFont("tinyFont", drawFunction)
+    offset = offset + 65
+    text = asPercent(player.crit)
+    resources.printWithFont("tinyFont", drawFunction)
+    offset = offset + 60
+    text = player.numAmmo
+    resources.printWithFont("tinyFont", drawFunction)
+    text = enemy.armor
+    offset = offset + 70
+    resources.printWithFont("tinyFont", drawFunction)
+    offset = offset + 50
+    text = asPercent(enemy.dodge)
+    resources.printWithFont("tinyFont", drawFunction)
+    offset = offset + 65
+    text = asPercent(enemy.crit)
+    resources.printWithFont("tinyFont", drawFunction)
+    offset = offset + 60
+    text = enemy.numAmmo
+    resources.printWithFont("tinyFont", drawFunction)
+
+    offset = 0
+    drawFunction =
+        function()
+        resources.drawWithColor(
+            0,
+            0,
+            0,
+            255,
+            function()
+                love.graphics.print(text, 440 + offset, 15)
+            end
+        )
+    end
+
+    text = combatScene.player.hp
     resources.printWithFont("smallFont", drawFunction)
-    offset = offset + 20
-    text = "Armor  " .. player.armor
-    resources.printWithFont("smallFont", drawFunction)
-    offset = offset + 20
-    text = "Dodge  " .. asPercent(player.dodge)
-    resources.printWithFont("smallFont", drawFunction)
-    offset = offset + 20
-    text = "Crit   " .. asPercent(player.crit)
-    resources.printWithFont("smallFont", drawFunction)
-    offset = offset + 20
-    text = "Ammo   " .. player.numAmmo
-    resources.printWithFont("smallFont", drawFunction)
-    offset = offset + 20
-    text = "Enemy hp " .. combatScene.enemy.hp
+    offset = offset + 215
+    text = combatScene.enemy.hp
     resources.printWithFont("smallFont", drawFunction)
 end
 
@@ -452,10 +502,27 @@ function CombatScene:draw()
     for _, explosion in ipairs(combatScene.explosions) do
         love.graphics.draw(explosion, 0, 0)
     end
+    drawHealthBars(combatScene.player, combatScene.enemy)
+    drawStats(combatScene.player, combatScene.enemy)
 
-    drawPlayerStats(combatScene.player)
     utility.UI.drawButtons(self.buttons)
     combatScene.fsm.state:draw()
+
+    local portraitImage = {}
+    local shipImage = {}
+    if combatScene.enemy.shipType == "merchantShip" then
+        portraitImage = merchantportrait
+        shipImage = merchantShip
+    elseif combatScene.enemy.shipType == "keyStarPirate" or combatScene.enemy.shipType == "boss" then
+        portraitImage = bossportrait
+        shipImage = bossShip
+    else
+        portraitImage = pirateportrait
+        shipImage = pirateShip
+    end
+
+    love.graphics.draw(portraitImage, 1015, 440)
+    love.graphics.draw(shipImage, 755, -10)
 end
 
 function CombatScene:update(dt)

@@ -17,6 +17,7 @@ function HighLevelPirate:new()
 
     local o = ship.newShip(dodge, crit, armor, hp, numAmmo, weapons)
     o.shipType = "highLevelPirate"
+    o.maxHp = hp
     return o
 end
 

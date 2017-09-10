@@ -17,6 +17,7 @@ function MerchantShip:new()
 
     local o = ship.newShip(dodge, crit, armor, hp, numAmmo, weapons)
     o.shipType = "merchantShip"
+    o.maxHp = hp
     return o
 end
 
