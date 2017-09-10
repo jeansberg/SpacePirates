@@ -109,25 +109,9 @@ local function drawConsequences()
     if textScene.type == "trade" then
         text = "You complete the trade."
     elseif textScene.type == "wreckage" then
-        resources.printWithFont(
-            "smallFont",
-            function()
-                love.graphics.print("You receive:", 660, 600)
-            end
-        )
-
-        resources.printWithFont(
-            "smallFont",
-            function()
-                love.graphics.print(tostring(textScene.money) .. " money", 660, 620)
-            end
-        )
-        resources.printWithFont(
-            "smallFont",
-            function()
-                love.graphics.print(tostring(textScene.ammo) .. " ammo", 660, 640)
-            end
-        )
+        text =
+            "You receive " ..
+            tostring(textScene.money) .. " money and " .. tostring(textScene.ammo) .. " ammo"
     elseif textScene.type == "asteroids" then
         if textScene.player.hp > 1 then
             text = "An asteroid hits your ship for 20 damage!"
