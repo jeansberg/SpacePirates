@@ -357,7 +357,7 @@ gameEngine.menuState.Buttons = {
             gameEngine.menuState.Buttons[3].visible = true
             gameEngine.menuState.Buttons[4].visible = true
             gameEngine.menuState.Buttons[5].visible = false
-            resources.playMusic(mainTheme)
+            resources.playMusic(titleTheme)
             gameEngine.credits = false
         end
     )
