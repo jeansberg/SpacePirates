@@ -5,7 +5,7 @@ local ship = require("ship")
 local crit = 0.2
 local dodge = 0.2
 local armor = 2
-local hp = 70
+local hp = 80
 local numAmmo = 5
 
 local function getUniqueGun(weapons)

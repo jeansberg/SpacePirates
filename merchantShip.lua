@@ -6,7 +6,7 @@ local crit = 0.15
 local dodge = 0.2
 local numAmmo = 3
 local armor = 2
-local hp = 55
+local hp = 60
 
 local MerchantShip = {}
 

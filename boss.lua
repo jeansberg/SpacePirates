@@ -5,7 +5,7 @@ local ship = require("ship")
 local crit = 0.25
 local dodge = 0.2
 local armor = 3
-local hp = 96
+local hp = 120
 local numAmmo = 8
 
 local Boss = {}
