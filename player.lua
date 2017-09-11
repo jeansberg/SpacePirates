@@ -7,12 +7,12 @@ local crit = 0.05
 local armor = 0
 local hp = 250
 local numAmmo = 2
-local weapons = {standardCannon = true}
 local money = 20
 
 local Player = {}
 
 function Player:new()
+    local weapons = {standardCannon = true}
     local o = ship.newShip(dodge, crit, armor, hp, numAmmo, weapons, money)
     o.shipType = "player"
     return o

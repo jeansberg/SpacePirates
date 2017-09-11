@@ -2,6 +2,7 @@ local gameMap = require("gameMap")
 local mapData = require("mapData")
 local combatScene = require("combatScene")
 local cityScene = require("cityScene")
+local textScene = require("textScene")
 local input = require "input"
 local utility = require("utility")
 local resources = require("resources")
@@ -11,6 +12,7 @@ local pirate = require("pirate")
 local highLevelPirate = require("highLevelPirate")
 local keyStarPirate = require("keyStarPirate")
 local merchantShip = require("merchantShip")
+local boss = require("boss")
 
 local starrySky = resources.images.starrySky
 
@@ -18,7 +20,8 @@ local titleTheme = resources.music.titleTheme
 local battleTheme = resources.music.battleTheme
 local mainTheme = resources.music.mainTheme
 local cityTheme = resources.music.cityTheme
-local warp = resources.sounds.warpDrive
+local credits = resources.music.credits
+local menuClick = resources.sounds.menuClick
 
 --[[
     Game Engine module.
@@ -50,15 +53,21 @@ local function shuffle(tbl)
     return tbl
 end
 
-local function getRandomUpgrade(node)
-    local roll = math.random(1, 3)
-    if roll == 1 then
-        table.insert(node.upgrades, {"armor"})
-    elseif roll == 2 then
-        table.insert(node.upgrades, {"crit"})
-    elseif roll == 3 then
-        table.insert(node.upgrades, {"dodge"})
+local function getUniqueUpgrade(node)
+    local upgrades = {}
+    if not node.upgrades["dodge"] then
+        table.insert(upgrades, "dodge")
     end
+    if not node.upgrades["crit"] then
+        table.insert(upgrades, "crit")
+    end
+    if not node.upgrades["armor"] then
+        table.insert(upgrades, "armor")
+    end
+
+    local roll = math.random(1, table.getn(upgrades))
+    local receivedUpgrade = upgrades[roll]
+    node.upgrades[receivedUpgrade] = true
 end
 
 local function getUniqueGun(weapons)
@@ -75,13 +84,14 @@ local function getUniqueGun(weapons)
 
     local roll = math.random(1, table.getn(specialWeapons))
     local receivedWeapon = specialWeapons[roll]
-    table.insert(weapons, {name = receivedWeapon})
+    table.insert(weapons, receivedWeapon)
 end
 
 local function stockStoreInventory(nodes)
     local weapons = {}
     getUniqueGun(weapons)
     getUniqueGun(weapons)
+
     local counter = 0
 
     for i = 1, table.getn(nodes) do
@@ -90,11 +100,11 @@ local function stockStoreInventory(nodes)
             counter = counter + 1
             node.upgrades = {}
             node.weapons = {}
-            getRandomUpgrade(node)
-            getRandomUpgrade(node)
+            getUniqueUpgrade(node)
+            getUniqueUpgrade(node)
 
             if counter < 3 then
-                table.insert(node.weapons, weapons[counter])
+                node.weapons[weapons[counter]] = true
             end
         end
     end
@@ -155,7 +165,7 @@ local function randomizeNodes(nodes)
     stockStoreInventory(nodes)
 end
 
-local function enterCombat(enemyType)
+local function enterCombat(enemyType, extraLoot)
     gameEngine.fsm:setState(gameEngine.combatState)
 
     local enemy = {}
@@ -168,8 +178,10 @@ local function enterCombat(enemyType)
         enemy = keyStarPirate.newKeyStarPirate()
     elseif enemyType == "merchantShip" then
         enemy = merchantShip.newMerchantShip()
+    elseif enemyType == "boss" then
+        enemy = boss.newBoss()
     end
-    gameEngine.combatScene = combatScene.newCombatScene(gameEngine.player, enemy)
+    gameEngine.combatScene = combatScene.newCombatScene(gameEngine.player, enemy, extraLoot)
 end
 
 local function enterCity(node)
@@ -177,18 +189,9 @@ local function enterCity(node)
     gameEngine.cityScene = cityScene.newCityScene(node, gameEngine.player)
 end
 
-local function exitScene(message)
-    if message == "fledCombat" then
-        print("Player fled combat.\n")
-        resources.playSound(warp)
-    elseif message == "diedFleeing" then
-        print("Player attempted to flee but took too much damage.\n")
-    end
-    gameEngine.fsm:setState(gameEngine.mapState)
-end
-
-local function enterMenu()
-    gameEngine.fsm:setState(gameEngine.menuState)
+local function enterTextScene(type)
+    gameEngine.fsm:setState(gameEngine.textState)
+    gameEngine.textScene = textScene.newEncounter(type, gameEngine.player)
 end
 
 local function generateMap()
@@ -197,6 +200,21 @@ local function generateMap()
     randomizeNodes(nodes)
 
     return gameMap.newGameMap(nodes)
+end
+
+local function exitScene(message)
+    if message == "restart" then
+        gameEngine.map = generateMap()
+        gameEngine.player = player.newPlayer()
+        resources.restartMusic(mainTheme)
+    elseif message == "foundBoss" then
+        gameEngine.map:showBoss()
+    end
+    gameEngine.fsm:setState(gameEngine.mapState)
+end
+
+local function enterMenu()
+    gameEngine.fsm:setState(gameEngine.menuState)
 end
 
 local function scrollSky(dt)
@@ -274,6 +292,18 @@ local function setOptionVisible(option, visible)
     option.visible = visible
 end
 
+local function resetMenu()
+    gameEngine.menuState.Buttons[1].visible = gameEngine.running
+    gameEngine.menuState.Buttons[2].visible = true
+    gameEngine.menuState.Buttons[3].visible = true
+    gameEngine.menuState.Buttons[4].visible = true
+    gameEngine.menuState.Buttons[6].visible = true
+    gameEngine.menuState.Buttons[5].visible = false
+    resources.playMusic(titleTheme)
+    gameEngine.credits = false
+    gameEngine.tutorial = nil
+end
+
 gameEngine.menuState = stateMachine.newState()
 gameEngine.menuState.Buttons = {
     utility.UI.newButton(
@@ -298,30 +328,58 @@ gameEngine.menuState.Buttons = {
             gameEngine.player = player.newPlayer()
             resources.restartMusic(mainTheme)
             gameEngine.fsm:setState(gameEngine.mapState)
-        end
-    ),
-    utility.UI.newButton(
-        500,
-        340,
-        "Options",
-        true,
-        true,
-        function()
+            setOptionVisible(gameEngine.menuState.Buttons[1], true)
         end
     ),
     utility.UI.newButton(
         500,
         380,
+        "Credits",
+        true,
+        true,
+        function()
+            gameEngine.menuState.Buttons[1].visible = false
+            gameEngine.menuState.Buttons[2].visible = false
+            gameEngine.menuState.Buttons[3].visible = false
+            gameEngine.menuState.Buttons[4].visible = false
+            gameEngine.menuState.Buttons[6].visible = false
+            gameEngine.menuState.Buttons[5].visible = true
+            resources.playMusic(credits)
+            gameEngine.credits = true
+        end
+    ),
+    utility.UI.newButton(
+        500,
+        420,
         "Quit",
         true,
         true,
         function()
             love.event.quit()
         end
+    ),
+    utility.UI.newButton(500, 660, "Back", false, true, resetMenu),
+    utility.UI.newButton(
+        500,
+        340,
+        "Tutorial",
+        true,
+        true,
+        function()
+            gameEngine.menuState.Buttons[1].visible = gameEngine.running
+            gameEngine.menuState.Buttons[1].visible = false
+            gameEngine.menuState.Buttons[2].visible = false
+            gameEngine.menuState.Buttons[3].visible = false
+            gameEngine.menuState.Buttons[4].visible = false
+            gameEngine.menuState.Buttons[6].visible = false
+            gameEngine.tutorial = 1
+        end
     )
 }
 
 function gameEngine.menuState:enter()
+    resources.playMusic(titleTheme)
+
     if gameEngine.running then
         gameEngine.menuState.selectedIndex = 1
     else
@@ -332,10 +390,6 @@ end
 function gameEngine.menuState:update(dt)
     gameEngine.menuState.skyPosition = scrollSky(dt)
 
-    if gameEngine.running then
-        setOptionVisible(gameEngine.menuState.Buttons[1], true)
-    end
-
     local menuInput = input.getMenuInput()
     if menuInput == "up" then
         MenuUp(gameEngine.menuState)
@@ -344,11 +398,6 @@ function gameEngine.menuState:update(dt)
     elseif menuInput == "return" then
         MenuSelect(gameEngine.menuState)
     end
-
-    local mousePos = input.getMouse()
-    -- if mousePos == gameEngine.menuState.lastMousePos then
-    --     return
-    -- end
 
     for i = 1, table.getn(gameEngine.menuState.Buttons) do
         local option = gameEngine.menuState.Buttons[i]
@@ -366,10 +415,56 @@ function gameEngine.menuState:update(dt)
             end
         end
     end
+
+    if gameEngine.tutorial and input.getLeftClick() then
+        if gameEngine.tutorial == 4 then
+            resetMenu()
+        else
+            gameEngine.tutorial = gameEngine.tutorial + 1
+        end
+
+        resources.playSound(menuClick)
+    end
 end
 
 function gameEngine.menuState:draw()
     drawSky()
+
+    if gameEngine.credits then
+        resources.printWithFont(
+            "largeFont",
+            function()
+                love.graphics.print("Design:\nDiego Ramos", 50, 100)
+            end
+        )
+        resources.printWithFont(
+            "largeFont",
+            function()
+                love.graphics.print("Code:\nJens Genberg", 850, 100)
+            end
+        )
+        resources.printWithFont(
+            "largeFont",
+            function()
+                love.graphics.print("Art:\nGillian Sneve", 50, 300)
+            end
+        )
+        resources.printWithFont(
+            "largeFont",
+            function()
+                love.graphics.print("Sound:\nCoatedpolecat", 850, 300)
+            end
+        )
+    elseif gameEngine.tutorial then
+        love.graphics.draw(resources.images["tut" .. gameEngine.tutorial], -2, -27)
+
+        resources.printWithFont(
+            "largeFont",
+            function()
+                love.graphics.print("Click to advance", 400, 660)
+            end
+        )
+    end
 
     drawMenu(gameEngine.menuState.options)
 end
@@ -420,14 +515,25 @@ function gameEngine.cityState:draw()
     gameEngine.cityScene:draw()
 end
 
+gameEngine.textState = stateMachine.newState()
+
+function gameEngine.textState:update()
+    gameEngine.textScene:update(dt)
+end
+
+function gameEngine.textState:draw()
+    gameEngine.textScene:draw()
+end
+
 --[[
     Module interface.
 ]]
 function gameEngine.init()
     math.randomseed(os.time())
-    gameMap.init(enterCombat, enterCity, enterMenu)
+    gameMap.init(enterCombat, enterCity, enterMenu, enterTextScene)
     combatScene.init(exitScene)
     cityScene.init(exitScene)
+    textScene.init(exitScene, enterCombat)
 
     gameEngine.fsm = stateMachine.newStateMachine()
     gameEngine.fsm:setState(gameEngine.menuState)

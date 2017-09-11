@@ -78,18 +78,42 @@ local function getWeapon(lootReturn, player, chance)
     end
 end
 
-function loot.getLoot(player, enemy, type)
+function loot.getLoot(player, enemy, type, extraLoot)
     local lootReturn = {}
     if enemy.shipType == "pirate" then
         if type == "surrender" then
-            getMoney(lootReturn, player, 10, 10)
-            getUpgrade(lootReturn, player, 0.05)
-            getAmmo(lootReturn, player, 1, 1, 0.5)
+            if extraLoot then
+                getMoney(lootReturn, player, 20, 30)
+            else
+                getMoney(lootReturn, player, 10, 10)
+            end
+            if extraLoot then
+                getUpgrade(lootReturn, player, 0.05)
+            else
+                getUpgrade(lootReturn, player, 0.15)
+            end
+            if extraLoot then
+                getAmmo(lootReturn, player, 1, 2, 1)
+            else
+                getAmmo(lootReturn, player, 1, 1, 0.5)
+            end
             getWeapon(lootReturn, player, 0.01)
         else
-            getMoney(lootReturn, player, 10, 20)
-            getUpgrade(lootReturn, player, 0.1)
-            getAmmo(lootReturn, player, 1, 2, 1)
+            if extraLoot then
+                getMoney(lootReturn, player, 20, 40)
+            else
+                getMoney(lootReturn, player, 10, 20)
+            end
+            if extraLoot then
+                getUpgrade(lootReturn, player, 0.1)
+            else
+                getUpgrade(lootReturn, player, 0.2)
+            end
+            if extraLoot then
+                getAmmo(lootReturn, player, 2, 3, 1)
+            else
+                getAmmo(lootReturn, player, 1, 2, 1)
+            end
             getWeapon(lootReturn, player, 0.05)
         end
     elseif enemy.shipType == "highLevelPirate" then

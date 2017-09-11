@@ -40,18 +40,18 @@ function shipAI.takeAction(ship, target)
     if ship.numAmmo > 0 then
         if ship.shipType == "pirate" then
             useAmmo = useSpecialAmmo(0.3)
-        elseif ship.type == "highLevelPirate" then
+        elseif ship.shipType == "highLevelPirate" then
             useAmmo = useSpecialAmmo(0.4)
-        elseif ship.type == "keyStarPirate" then
+        elseif ship.shipType == "keyStarPirate" then
             useAmmo = useSpecialAmmo(0.5)
-        elseif ship.type == "merchantShip" then
+        elseif ship.shipType == "merchantShip" then
             useAmmo = useSpecialAmmo(0.5)
-        elseif ship.type == "boss" then
+        elseif ship.shipType == "boss" then
             useAmmo = useSpecialAmmo(0.5)
         end
     end
 
-    ship:attack(target, gun, useAmmo)
+    return ship:attack(target, gun, useAmmo)
 end
 
 return shipAI
