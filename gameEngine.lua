@@ -21,7 +21,7 @@ local battleTheme = resources.music.battleTheme
 local mainTheme = resources.music.mainTheme
 local cityTheme = resources.music.cityTheme
 local credits = resources.music.credits
-local warp = resources.sounds.warpDrive
+local menuClick = resources.sounds.menuClick
 
 --[[
     Game Engine module.
@@ -292,6 +292,18 @@ local function setOptionVisible(option, visible)
     option.visible = visible
 end
 
+local function resetMenu()
+    gameEngine.menuState.Buttons[1].visible = gameEngine.running
+    gameEngine.menuState.Buttons[2].visible = true
+    gameEngine.menuState.Buttons[3].visible = true
+    gameEngine.menuState.Buttons[4].visible = true
+    gameEngine.menuState.Buttons[6].visible = true
+    gameEngine.menuState.Buttons[5].visible = false
+    resources.playMusic(titleTheme)
+    gameEngine.credits = false
+    gameEngine.tutorial = nil
+end
+
 gameEngine.menuState = stateMachine.newState()
 gameEngine.menuState.Buttons = {
     utility.UI.newButton(
@@ -321,7 +333,7 @@ gameEngine.menuState.Buttons = {
     ),
     utility.UI.newButton(
         500,
-        340,
+        380,
         "Credits",
         true,
         true,
@@ -330,6 +342,7 @@ gameEngine.menuState.Buttons = {
             gameEngine.menuState.Buttons[2].visible = false
             gameEngine.menuState.Buttons[3].visible = false
             gameEngine.menuState.Buttons[4].visible = false
+            gameEngine.menuState.Buttons[6].visible = false
             gameEngine.menuState.Buttons[5].visible = true
             resources.playMusic(credits)
             gameEngine.credits = true
@@ -337,7 +350,7 @@ gameEngine.menuState.Buttons = {
     ),
     utility.UI.newButton(
         500,
-        380,
+        420,
         "Quit",
         true,
         true,
@@ -345,25 +358,28 @@ gameEngine.menuState.Buttons = {
             love.event.quit()
         end
     ),
+    utility.UI.newButton(500, 660, "Back", false, true, resetMenu),
     utility.UI.newButton(
         500,
-        380,
-        "Back",
-        false,
+        340,
+        "Tutorial",
+        true,
         true,
         function()
             gameEngine.menuState.Buttons[1].visible = gameEngine.running
-            gameEngine.menuState.Buttons[2].visible = true
-            gameEngine.menuState.Buttons[3].visible = true
-            gameEngine.menuState.Buttons[4].visible = true
-            gameEngine.menuState.Buttons[5].visible = false
-            resources.playMusic(titleTheme)
-            gameEngine.credits = false
+            gameEngine.menuState.Buttons[1].visible = false
+            gameEngine.menuState.Buttons[2].visible = false
+            gameEngine.menuState.Buttons[3].visible = false
+            gameEngine.menuState.Buttons[4].visible = false
+            gameEngine.menuState.Buttons[6].visible = false
+            gameEngine.tutorial = 1
         end
     )
 }
 
 function gameEngine.menuState:enter()
+    resources.playMusic(titleTheme)
+
     if gameEngine.running then
         gameEngine.menuState.selectedIndex = 1
     else
@@ -383,11 +399,6 @@ function gameEngine.menuState:update(dt)
         MenuSelect(gameEngine.menuState)
     end
 
-    local mousePos = input.getMouse()
-    -- if mousePos == gameEngine.menuState.lastMousePos then
-    --     return
-    -- end
-
     for i = 1, table.getn(gameEngine.menuState.Buttons) do
         local option = gameEngine.menuState.Buttons[i]
         if input.mouseOver(option:getRect()) then
@@ -404,12 +415,20 @@ function gameEngine.menuState:update(dt)
             end
         end
     end
+
+    if gameEngine.tutorial and input.getLeftClick() then
+        if gameEngine.tutorial == 4 then
+            resetMenu()
+        else
+            gameEngine.tutorial = gameEngine.tutorial + 1
+        end
+
+        resources.playSound(menuClick)
+    end
 end
 
 function gameEngine.menuState:draw()
     drawSky()
-
-    drawMenu(gameEngine.menuState.options)
 
     if gameEngine.credits then
         resources.printWithFont(
@@ -436,8 +455,18 @@ function gameEngine.menuState:draw()
                 love.graphics.print("Sound:\nCoatedpolecat", 850, 300)
             end
         )
-    else
+    elseif gameEngine.tutorial then
+        love.graphics.draw(resources.images["tut" .. gameEngine.tutorial], -2, -27)
+
+        resources.printWithFont(
+            "largeFont",
+            function()
+                love.graphics.print("Click to advance", 400, 660)
+            end
+        )
     end
+
+    drawMenu(gameEngine.menuState.options)
 end
 
 gameEngine.mapState = stateMachine.newState()

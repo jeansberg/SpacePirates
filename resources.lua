@@ -57,6 +57,10 @@ resources.images.bossShip = love.graphics.newImage(imagePath .. "bossShip.png")
 resources.images.merchantShip = love.graphics.newImage(imagePath .. "merchantShip.png")
 resources.images.pirateShip = love.graphics.newImage(imagePath .. "pirateShip.png")
 resources.images.health = love.graphics.newImage(imagePath .. "health.png")
+resources.images.tut1 = love.graphics.newImage(imagePath .. "tut1.png")
+resources.images.tut2 = love.graphics.newImage(imagePath .. "tut2.png")
+resources.images.tut3 = love.graphics.newImage(imagePath .. "tut3.png")
+resources.images.tut4 = love.graphics.newImage(imagePath .. "tut4.png")
 
 resources.sounds = {}
 resources.sounds.lowHealth = love.audio.newSource(soundPath .. "Low Health Alarm.mp3", "static")
